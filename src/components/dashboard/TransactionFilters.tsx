@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, Search } from "lucide-react";
 
@@ -13,6 +14,8 @@ interface TransactionFiltersProps {
   campusFilter: string;
   onCampusChange: (value: string) => void;
   onExport: () => void;
+  totalRecords: number;
+  filteredRecords: number;
 }
 
 export const TransactionFilters = ({
@@ -24,62 +27,100 @@ export const TransactionFilters = ({
   onStatusChange,
   campusFilter,
   onCampusChange,
-  onExport
+  onExport,
+  totalRecords,
+  filteredRecords,
 }: TransactionFiltersProps) => {
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center flex-1">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by transaction number or cashier..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10"
-          />
+    <div className="space-y-4">
+      {/* Active Filters Bar */}
+      <div className="bg-info/10 border border-info/20 rounded-lg p-3 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm">
+          <span className="font-medium">Active Filters:</span>
+          {statusFilter !== 'all' && (
+            <span className="px-2 py-1 bg-info/20 rounded text-info-foreground">
+              Status: {statusFilter}
+            </span>
+          )}
+          {paymentMethodFilter !== 'all' && (
+            <span className="px-2 py-1 bg-info/20 rounded text-info-foreground">
+              Payment: {paymentMethodFilter}
+            </span>
+          )}
+          {campusFilter !== 'all' && (
+            <span className="px-2 py-1 bg-info/20 rounded text-info-foreground">
+              Campus: {campusFilter.replace('Capsicum-CCS ', '')}
+            </span>
+          )}
+          {statusFilter === 'all' && paymentMethodFilter === 'all' && campusFilter === 'all' && (
+            <span className="text-muted-foreground">None</span>
+          )}
         </div>
-        
-        <Select value={campusFilter} onValueChange={onCampusChange}>
-          <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="All Campuses" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Campuses</SelectItem>
-            <SelectItem value="Main Campus">Main Campus</SelectItem>
-            <SelectItem value="East Campus">East Campus</SelectItem>
-            <SelectItem value="West Campus">West Campus</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={paymentMethodFilter} onValueChange={onPaymentMethodChange}>
-          <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Payment Method" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Methods</SelectItem>
-            <SelectItem value="cash">Cash</SelectItem>
-            <SelectItem value="card">Card</SelectItem>
-            <SelectItem value="mobile">Mobile</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={statusFilter} onValueChange={onStatusChange}>
-          <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Payment Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="declined">Declined</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-          </SelectContent>
-        </Select>
+        <span className="text-sm text-info font-medium">
+          Showing {filteredRecords} of {totalRecords} records
+        </span>
       </div>
 
-      <Button onClick={onExport} className="gap-2">
-        <Download className="h-4 w-4" />
-        Export CSV
-      </Button>
+      <Card className="shadow-sm">
+        <CardContent className="pt-6">
+          <div className="flex flex-col gap-4">
+            {/* Search and Export Row */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by transaction # or terminal ID..."
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Button onClick={onExport} className="gap-2 bg-gradient-to-r from-primary to-[hsl(25_95%_53%)] hover:opacity-90">
+                <Download className="h-4 w-4" />
+                Export CSV ({filteredRecords})
+              </Button>
+            </div>
+
+            {/* Filter Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Select value={campusFilter} onValueChange={onCampusChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Campuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Campuses</SelectItem>
+                  <SelectItem value="Capsicum-CCS Cape Town">Cape Town</SelectItem>
+                  <SelectItem value="Capsicum-CCS Durban">Durban</SelectItem>
+                  <SelectItem value="Capsicum-CCS Nelson Mandela Bay">Nelson Mandela Bay</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={paymentMethodFilter} onValueChange={onPaymentMethodChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Payment Methods" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Methods</SelectItem>
+                  <SelectItem value="debit">Debit</SelectItem>
+                  <SelectItem value="credit">Credit</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={statusFilter} onValueChange={onStatusChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="declined">Declined</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

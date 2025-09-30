@@ -10,13 +10,13 @@ export interface Transaction {
   id: string;
   transactionNumber: string;
   timestamp: Date;
-  cashier: string;
+  terminalId: string;
   campus: string;
   cartItems: CartItem[];
   subtotal: number;
   tax: number;
   total: number;
-  paymentMethod: "cash" | "card" | "mobile";
+  paymentMethod: "debit" | "credit";
   paymentStatus: "approved" | "declined" | "pending";
   cardLastFour?: string;
   declineReason?: string;

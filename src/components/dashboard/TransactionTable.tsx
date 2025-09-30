@@ -42,7 +42,7 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
           <TableRow className="bg-muted/50">
             <TableHead className="font-semibold">Transaction #</TableHead>
             <TableHead className="font-semibold">Date & Time</TableHead>
-            <TableHead className="font-semibold">Cashier</TableHead>
+            <TableHead className="font-semibold">Terminal ID</TableHead>
             <TableHead className="font-semibold">Campus</TableHead>
             <TableHead className="font-semibold">Items</TableHead>
             <TableHead className="font-semibold text-right">Total</TableHead>
@@ -67,8 +67,8 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
                     <span className="text-xs text-muted-foreground">{format(transaction.timestamp, "HH:mm:ss")}</span>
                   </div>
                 </TableCell>
-                <TableCell>{transaction.cashier}</TableCell>
-                <TableCell>{transaction.campus}</TableCell>
+                <TableCell className="font-mono text-sm">{transaction.terminalId}</TableCell>
+                <TableCell>{transaction.campus.replace('Capsicum-CCS ', '')}</TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1 max-w-xs">
                     {transaction.cartItems.map((item, idx) => (
