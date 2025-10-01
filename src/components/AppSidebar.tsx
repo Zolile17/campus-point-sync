@@ -1,4 +1,4 @@
-import { LayoutDashboard, TrendingUp } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Users, Building2 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import capsicumLogo from "@/assets/capsicum-logo.png";
 import {
@@ -23,6 +23,16 @@ const menuItems = [
     title: "Metrics",
     url: "/metrics",
     icon: TrendingUp,
+  },
+  {
+    title: "User Management",
+    url: "/users",
+    icon: Users,
+  },
+  {
+    title: "Brand Management",
+    url: "/brands",
+    icon: Building2,
   },
 ];
 
