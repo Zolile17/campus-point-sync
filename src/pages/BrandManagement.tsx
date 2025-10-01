@@ -73,7 +73,7 @@ const BrandManagement = () => {
       </div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="overflow-hidden">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -93,28 +93,6 @@ const BrandManagement = () => {
                 <p className="text-2xl font-bold">{totalUsers}</p>
               </div>
               <Users className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="overflow-hidden">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Transactions</p>
-                <p className="text-2xl font-bold">{totalTransactions}</p>
-              </div>
-              <Activity className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="overflow-hidden">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Revenue</p>
-                <p className="text-2xl font-bold">R{totalRevenue.toFixed(2)}</p>
-              </div>
-              <Building2 className="h-8 w-8 text-purple-600" />
             </div>
           </CardContent>
         </Card>
@@ -187,44 +165,6 @@ const BrandManagement = () => {
           </Card>
         ))}
       </div>
-
-      {/* Additional Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Campus Network Overview</CardTitle>
-          <CardDescription>All Capsicum Culinary Studio locations</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {campuses.map((campus) => (
-              <div key={campus.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-black flex items-center justify-center text-white font-bold">
-                    {campus.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold">{campus.fullName}</p>
-                    <p className="text-sm text-muted-foreground">{campus.terminal}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-6">
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Users</p>
-                    <p className="font-semibold">{campus.activeUsers}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Revenue</p>
-                    <p className="font-semibold">R{campus.revenue.toFixed(2)}</p>
-                  </div>
-                  <Badge variant={campus.status === "active" ? "default" : "secondary"}>
-                    {campus.status}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
