@@ -78,7 +78,11 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
                     ))}
                   </div>
                 </TableCell>
-                <TableCell className="text-right font-semibold">R{transaction.total.toFixed(2)}</TableCell>
+                <TableCell className="text-right">
+                  <span className="text-lg font-bold bg-gradient-to-r from-red-600 to-black bg-clip-text text-transparent">
+                    R{(transaction.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)}
+                  </span>
+                </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="text-sm capitalize">{transaction.paymentMethod}</span>

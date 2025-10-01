@@ -63,7 +63,7 @@ const Index = () => {
       {/* Header with refresh */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-orange-500 to-primary bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 via-red-700 to-black bg-clip-text text-transparent">
             Transaction Dashboard
           </h1>
           <p className="text-muted-foreground mt-1">Real-time transaction monitoring and reconciliation</p>
@@ -82,12 +82,20 @@ const Index = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
+          title="Total Revenue"
+          value={`R${stats.totalRevenue.toFixed(2)}`}
+          description={`Avg: R${stats.averageTransactionValue.toFixed(2)}`}
+          icon={TrendingUp}
+          trend={{ value: 12.5, isPositive: true }}
+          gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)"
+        />
+        <StatsCard
           title="Total Transactions"
           value={stats.totalTransactions.toString()}
           description="All payment attempts"
           icon={Activity}
           trend={{ value: 8.2, isPositive: true }}
-          gradient="var(--gradient-blue)"
+          gradient="linear-gradient(135deg, #4F46E5 0%, #2563EB 100%)"
         />
         <StatsCard
           title="Successful"
@@ -95,22 +103,15 @@ const Index = () => {
           description={`Success Rate: ${stats.approvalRate.toFixed(1)}%`}
           icon={CreditCard}
           trend={{ value: 3.1, isPositive: true }}
-          gradient="var(--gradient-green)"
+          gradient="linear-gradient(135deg, #10B981 0%, #059669 100%)"
         />
         <StatsCard
           title="Declined"
           value={mockTransactions.filter(t => t.paymentStatus === "declined").length.toString()}
           description={`Decline Rate: ${((mockTransactions.filter(t => t.paymentStatus === "declined").length / stats.totalTransactions) * 100).toFixed(1)}%`}
           icon={DollarSign}
-          gradient="var(--gradient-red)"
-        />
-        <StatsCard
-          title="Total Revenue"
-          value={`R${stats.totalRevenue.toFixed(2)}`}
-          description={`Avg: R${stats.averageTransactionValue.toFixed(2)}`}
-          icon={TrendingUp}
-          trend={{ value: 12.5, isPositive: true }}
-          gradient="var(--gradient-purple)"
+          trend={{ value: 2.3, isPositive: false }}
+          gradient="linear-gradient(135deg, #EF4444 0%, #DC2626 100%)"
         />
       </div>
 

@@ -75,7 +75,7 @@ export const TransactionFilters = ({
                   className="pl-10"
                 />
               </div>
-              <Button onClick={onExport} className="gap-2 bg-gradient-to-r from-primary to-[hsl(25_95%_53%)] hover:opacity-90">
+              <Button onClick={onExport} className="gap-2 bg-gradient-to-r from-red-600 to-black text-white hover:from-red-700 hover:to-gray-900 transition-all">
                 <Download className="h-4 w-4" />
                 Export CSV ({filteredRecords})
               </Button>

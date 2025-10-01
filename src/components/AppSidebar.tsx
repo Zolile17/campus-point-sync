@@ -31,11 +31,8 @@ export function AppSidebar() {
     <Sidebar className="border-r border-border">
       <SidebarHeader className="border-b border-sidebar-border p-6">
         <div className="flex items-center gap-3">
-          <img src={capsicumLogo} alt="Capsicum" className="h-12 w-12" />
-          <div>
-            <h2 className="text-xl font-bold text-primary">Capsicum</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Culinary Studio</p>
-          </div>
+          <img src={capsicumLogo} alt="Capsicum" className="h-12 w-auto object-contain" />
+          
         </div>
       </SidebarHeader>
       <SidebarContent>
