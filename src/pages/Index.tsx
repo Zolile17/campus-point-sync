@@ -70,12 +70,7 @@ const Index = () => {
         </div>
         <div className="text-right">
         
-          <p className="text-lg font-semibold text-foreground">
-            {new Date().toLocaleTimeString('en-ZA', { 
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
-          </p>
+         
         </div>
       </div>
 
