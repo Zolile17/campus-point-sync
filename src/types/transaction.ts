@@ -1,9 +1,11 @@
+export type ItemCategory = "All Day Menu" | "Beverages" | "Add-ons";
+
 export interface CartItem {
   id: string;
   name: string;
   quantity: number;
   price: number;
-  category: "food" | "beverage" | "add-on";
+  category: ItemCategory;
 }
 
 export interface Transaction {

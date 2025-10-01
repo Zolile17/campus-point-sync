@@ -1,20 +1,24 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { mockTransactions } from "@/data/mockTransactions";
+import { ItemCategory } from "@/types/transaction";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
-import { TrendingUp, Package, Clock, CreditCard } from "lucide-react";
+import { TrendingUp, Package, Clock, CreditCard, Coffee, UtensilsCrossed, Plus } from "lucide-react";
 
-const COLORS = ['hsl(6 78% 57%)', 'hsl(142 76% 45%)', 'hsl(217 91% 60%)', 'hsl(38 92% 50%)', 'hsl(280 87% 65%)'];
+const COLORS = ['hsl(354 70% 54%)', 'hsl(142 76% 45%)', 'hsl(217 91% 60%)', 'hsl(38 92% 50%)', 'hsl(280 87% 65%)'];
 
 const Metrics = () => {
+  const [categoryFilter, setCategoryFilter] = useState<ItemCategory | "all">("all");
+
   const analytics = useMemo(() => {
-    // Most popular items
-    const itemCounts: Record<string, { name: string; count: number; revenue: number }> = {};
+    // Most popular items by category
+    const itemCounts: Record<string, { name: string; count: number; revenue: number; category: ItemCategory }> = {};
     mockTransactions.forEach(t => {
       if (t.paymentStatus === "approved") {
         t.cartItems.forEach(item => {
           if (!itemCounts[item.name]) {
-            itemCounts[item.name] = { name: item.name, count: 0, revenue: 0 };
+            itemCounts[item.name] = { name: item.name, count: 0, revenue: 0, category: item.category };
           }
           itemCounts[item.name].count += item.quantity;
           itemCounts[item.name].revenue += item.quantity * item.price;
@@ -22,9 +26,33 @@ const Metrics = () => {
       }
     });
     
-    const topItems = Object.values(itemCounts)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+    const allItems = Object.values(itemCounts).sort((a, b) => b.count - a.count);
+    
+    const topItems = categoryFilter === "all" 
+      ? allItems.slice(0, 10)
+      : allItems.filter(item => item.category === categoryFilter).slice(0, 10);
+    
+    // Category breakdown
+    const categoryStats: Record<ItemCategory, { count: number; revenue: number }> = {
+      "All Day Menu": { count: 0, revenue: 0 },
+      "Beverages": { count: 0, revenue: 0 },
+      "Add-ons": { count: 0, revenue: 0 },
+    };
+    
+    mockTransactions.forEach(t => {
+      if (t.paymentStatus === "approved") {
+        t.cartItems.forEach(item => {
+          categoryStats[item.category].count += item.quantity;
+          categoryStats[item.category].revenue += item.quantity * item.price;
+        });
+      }
+    });
+    
+    const categoryRevenue = Object.entries(categoryStats).map(([name, stats]) => ({
+      name,
+      revenue: parseFloat(stats.revenue.toFixed(2)),
+      count: stats.count
+    }));
 
     // Revenue by campus
     const campusRevenue: Record<string, number> = {};
@@ -104,13 +132,23 @@ const Metrics = () => {
 
     return {
       topItems,
+      categoryRevenue,
       revenueByLocation,
       paymentData,
       peakHours,
       revenueTrend,
       terminalPerformance
     };
-  }, []);
+  }, [categoryFilter]);
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case "All Day Menu": return <UtensilsCrossed className="h-4 w-4" />;
+      case "Beverages": return <Coffee className="h-4 w-4" />;
+      case "Add-ons": return <Plus className="h-4 w-4" />;
+      default: return <Package className="h-4 w-4" />;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -120,7 +158,51 @@ const Metrics = () => {
         <p className="text-muted-foreground mt-1">Deep dive into operational and revenue metrics</p>
       </div>
 
-      {/* Top Items */}
+      {/* Category Revenue Overview */}
+      <Card className="border-primary/20 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5 text-primary" />
+            Revenue by Category
+          </CardTitle>
+          <CardDescription>Performance across All Day Menu, Beverages, and Add-ons</CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {analytics.categoryRevenue.map((cat, idx) => (
+              <div key={cat.name} className="p-4 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-2 mb-2">
+                  {getCategoryIcon(cat.name)}
+                  <h4 className="font-semibold text-sm">{cat.name}</h4>
+                </div>
+                <p className="text-2xl font-bold text-primary">R{cat.revenue.toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">{cat.count} items sold</p>
+              </div>
+            ))}
+          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={analytics.categoryRevenue}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, revenue }) => `${name}: R${revenue}`}
+                outerRadius={110}
+                fill="#8884d8"
+                dataKey="revenue"
+              >
+                {analytics.categoryRevenue.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value: number) => `R${value.toFixed(2)}`} />
+            </PieChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Top Items with Category Filter */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -130,6 +212,20 @@ const Metrics = () => {
           <CardDescription>Top selling items by quantity ordered</CardDescription>
         </CardHeader>
         <CardContent>
+          <Tabs value={categoryFilter} onValueChange={(v) => setCategoryFilter(v as ItemCategory | "all")} className="mb-4">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="all">All Categories</TabsTrigger>
+              <TabsTrigger value="All Day Menu" className="flex items-center gap-1">
+                <UtensilsCrossed className="h-3 w-3" /> Menu
+              </TabsTrigger>
+              <TabsTrigger value="Beverages" className="flex items-center gap-1">
+                <Coffee className="h-3 w-3" /> Beverages
+              </TabsTrigger>
+              <TabsTrigger value="Add-ons" className="flex items-center gap-1">
+                <Plus className="h-3 w-3" /> Add-ons
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
           <ResponsiveContainer width="100%" height={350}>
             <BarChart data={analytics.topItems}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -143,8 +239,8 @@ const Metrics = () => {
                 ]}
               />
               <Legend />
-              <Bar dataKey="count" fill="hsl(6 78% 57%)" name="Quantity" />
-              <Bar dataKey="revenue" fill="hsl(142 76% 45%)" name="Revenue" />
+              <Bar dataKey="count" fill="hsl(354 70% 54%)" name="Quantity" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="revenue" fill="hsl(142 76% 45%)" name="Revenue" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -234,7 +330,7 @@ const Metrics = () => {
                 contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
                 formatter={(value: number) => [`${value} transactions`, 'Volume']}
               />
-              <Line type="monotone" dataKey="transactions" stroke="hsl(6 78% 57%)" strokeWidth={2} />
+              <Line type="monotone" dataKey="transactions" stroke="hsl(354 70% 54%)" strokeWidth={2} dot={{ fill: 'hsl(354 70% 54%)', r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -259,7 +355,7 @@ const Metrics = () => {
                 contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
                 formatter={(value: number) => [`R${value.toFixed(2)}`, 'Revenue']}
               />
-              <Line type="monotone" dataKey="revenue" stroke="hsl(142 76% 45%)" strokeWidth={2} />
+              <Line type="monotone" dataKey="revenue" stroke="hsl(142 76% 45%)" strokeWidth={2} dot={{ fill: 'hsl(142 76% 45%)', r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -286,8 +382,8 @@ const Metrics = () => {
                 ]}
               />
               <Legend />
-              <Bar yAxisId="left" dataKey="transactions" fill="hsl(6 78% 57%)" name="Transactions" />
-              <Bar yAxisId="right" dataKey="revenue" fill="hsl(142 76% 45%)" name="Revenue (R)" />
+              <Bar yAxisId="left" dataKey="transactions" fill="hsl(354 70% 54%)" name="Transactions" radius={[4, 4, 0, 0]} />
+              <Bar yAxisId="right" dataKey="revenue" fill="hsl(142 76% 45%)" name="Revenue (R)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

@@ -1,5 +1,6 @@
 import { LayoutDashboard, TrendingUp } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import capsicumLogo from "@/assets/capsicum-logo.png";
 import {
   Sidebar,
   SidebarContent,
@@ -9,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarHeader,
 } from "@/components/ui/sidebar";
 
 const menuItems = [
@@ -27,11 +29,16 @@ const menuItems = [
 export function AppSidebar() {
   return (
     <Sidebar className="border-r border-border">
-      <SidebarContent>
-        <div className="p-6">
-          <h2 className="text-xl font-bold text-primary">Capsicum</h2>
-          <p className="text-xs text-muted-foreground mt-1">Reconciliation System</p>
+      <SidebarHeader className="border-b border-sidebar-border p-6">
+        <div className="flex items-center gap-3">
+          <img src={capsicumLogo} alt="Capsicum" className="h-12 w-12" />
+          <div>
+            <h2 className="text-xl font-bold text-primary">Capsicum</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Culinary Studio</p>
+          </div>
         </div>
+      </SidebarHeader>
+      <SidebarContent>
         
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
