@@ -69,7 +69,7 @@ const Index = () => {
           <p className="text-muted-foreground mt-1">Real-time transaction monitoring and reconciliation</p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-muted-foreground">Last updated</p>
+        
           <p className="text-lg font-semibold text-foreground">
             {new Date().toLocaleTimeString('en-ZA', { 
               hour: '2-digit',
