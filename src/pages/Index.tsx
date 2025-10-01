@@ -63,7 +63,9 @@ const Index = () => {
       {/* Header with refresh */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Transaction Dashboard</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-orange-500 to-primary bg-clip-text text-transparent">
+            Transaction Dashboard
+          </h1>
           <p className="text-muted-foreground mt-1">Real-time transaction monitoring and reconciliation</p>
         </div>
         <div className="text-right">

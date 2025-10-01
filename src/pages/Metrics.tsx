@@ -4,7 +4,7 @@ import { ItemCategory } from "@/types/transaction";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
-import { TrendingUp, Package, Clock, CreditCard, Coffee, UtensilsCrossed, Plus } from "lucide-react";
+import { TrendingUp, Package, Clock, CreditCard, Coffee, UtensilsCrossed, Plus, Activity } from "lucide-react";
 
 const COLORS = ['hsl(354 70% 54%)', 'hsl(142 76% 45%)', 'hsl(217 91% 60%)', 'hsl(38 92% 50%)', 'hsl(280 87% 65%)'];
 
@@ -154,8 +154,115 @@ const Metrics = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Metrics & Analytics</h1>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-orange-500 to-primary bg-clip-text text-transparent">
+          Metrics & Analytics
+        </h1>
         <p className="text-muted-foreground mt-1">Deep dive into operational and revenue metrics</p>
+      </div>
+
+      {/* Top Performing Campus */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border-primary/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              Top Campus by Revenue
+            </CardTitle>
+            <CardDescription>Highest performing location by total revenue</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {(() => {
+              const campusRevenue: Record<string, number> = {};
+              mockTransactions.forEach(t => {
+                if (t.paymentStatus === "approved") {
+                  campusRevenue[t.campus] = (campusRevenue[t.campus] || 0) + t.total;
+                }
+              });
+              const topCampus = Object.entries(campusRevenue).sort(([,a], [,b]) => b - a)[0];
+              const totalRevenue = Object.values(campusRevenue).reduce((sum, val) => sum + val, 0);
+              const percentage = ((topCampus[1] / totalRevenue) * 100).toFixed(1);
+              
+              return (
+                <div className="space-y-4">
+                  <div className="p-6 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+                    <p className="text-sm text-muted-foreground mb-2">Campus Name</p>
+                    <h3 className="text-2xl font-bold text-primary mb-1">
+                      {topCampus[0].replace('Capsicum-CCS ', '')}
+                    </h3>
+                    <p className="text-3xl font-bold text-foreground mb-2">R{topCampus[1].toFixed(2)}</p>
+                    <p className="text-sm text-muted-foreground">{percentage}% of total revenue</p>
+                  </div>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={Object.entries(campusRevenue).map(([name, value]) => ({
+                      name: name.replace('Capsicum-CCS ', ''),
+                      revenue: parseFloat(value.toFixed(2))
+                    })).sort((a, b) => b.revenue - a.revenue)}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis dataKey="name" className="text-xs" />
+                      <YAxis />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                        formatter={(value: number) => [`R${value.toFixed(2)}`, 'Revenue']}
+                      />
+                      <Bar dataKey="revenue" fill="hsl(354 70% 54%)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+
+        <Card className="border-primary/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-primary" />
+              Top Campus by Transactions
+            </CardTitle>
+            <CardDescription>Location with highest transaction volume</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {(() => {
+              const campusTransactions: Record<string, number> = {};
+              mockTransactions.forEach(t => {
+                if (t.paymentStatus === "approved") {
+                  campusTransactions[t.campus] = (campusTransactions[t.campus] || 0) + 1;
+                }
+              });
+              const topCampus = Object.entries(campusTransactions).sort(([,a], [,b]) => b - a)[0];
+              const totalTxns = Object.values(campusTransactions).reduce((sum, val) => sum + val, 0);
+              const percentage = ((topCampus[1] / totalTxns) * 100).toFixed(1);
+              
+              return (
+                <div className="space-y-4">
+                  <div className="p-6 rounded-lg bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20">
+                    <p className="text-sm text-muted-foreground mb-2">Campus Name</p>
+                    <h3 className="text-2xl font-bold text-green-600 mb-1">
+                      {topCampus[0].replace('Capsicum-CCS ', '')}
+                    </h3>
+                    <p className="text-3xl font-bold text-foreground mb-2">{topCampus[1]} transactions</p>
+                    <p className="text-sm text-muted-foreground">{percentage}% of total transactions</p>
+                  </div>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={Object.entries(campusTransactions).map(([name, value]) => ({
+                      name: name.replace('Capsicum-CCS ', ''),
+                      transactions: value
+                    })).sort((a, b) => b.transactions - a.transactions)}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis dataKey="name" className="text-xs" />
+                      <YAxis />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                        formatter={(value: number) => [`${value} transactions`, 'Volume']}
+                      />
+                      <Bar dataKey="transactions" fill="hsl(142 76% 45%)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Category Revenue Overview */}
