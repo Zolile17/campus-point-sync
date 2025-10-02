@@ -36,22 +36,33 @@ const Index = () => {
 
   // Filter transactions
   const filteredTransactions = useMemo(() => {
-    return mockTransactions.filter((transaction) => {
-      const matchesSearch = 
+    console.log("Current filters:", { searchTerm, paymentMethodFilter, statusFilter, campusFilter });
+    
+    const filtered = mockTransactions.filter((transaction) => {
+      // Search filter
+      const matchesSearch = searchTerm === "" || 
         transaction.transactionNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         transaction.terminalId.toLowerCase().includes(searchTerm.toLowerCase());
       
+      // Payment method filter
       const matchesPaymentMethod = 
         paymentMethodFilter === "all" || transaction.paymentMethod === paymentMethodFilter;
       
+      // Status filter
       const matchesStatus = 
         statusFilter === "all" || transaction.paymentStatus === statusFilter;
       
+      // Campus filter
       const matchesCampus = 
         campusFilter === "all" || transaction.campus === campusFilter;
 
-      return matchesSearch && matchesPaymentMethod && matchesStatus && matchesCampus;
+      const passes = matchesSearch && matchesPaymentMethod && matchesStatus && matchesCampus;
+      
+      return passes;
     });
+    
+    console.log(`Filtered ${filtered.length} out of ${mockTransactions.length} transactions`);
+    return filtered;
   }, [searchTerm, paymentMethodFilter, statusFilter, campusFilter]);
 
   const handleExport = () => {
@@ -60,17 +71,13 @@ const Index = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header with refresh */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 via-red-700 to-black bg-clip-text text-transparent">
             Transaction Dashboard
           </h1>
           <p className="text-muted-foreground mt-1">Real-time transaction monitoring and reconciliation</p>
-        </div>
-        <div className="text-right">
-        
-         
         </div>
       </div>
 

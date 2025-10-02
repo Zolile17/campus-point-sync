@@ -92,6 +92,7 @@ export const TransactionFilters = ({
                   <SelectItem value="Capsicum-CCS Cape Town">Cape Town</SelectItem>
                   <SelectItem value="Capsicum-CCS Durban">Durban</SelectItem>
                   <SelectItem value="Capsicum-CCS Nelson Mandela Bay">Nelson Mandela Bay</SelectItem>
+                  <SelectItem value="Capsicum-CCS Pretoria">Pretoria</SelectItem>
                 </SelectContent>
               </Select>
 
