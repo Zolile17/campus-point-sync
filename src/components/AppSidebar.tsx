@@ -80,10 +80,10 @@ export function AppSidebar() {
         <div className="space-y-3">
           <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-red-600/10 to-black/10">
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-red-600 to-black flex items-center justify-center text-white font-bold">
-              CS
+              GA
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground">Campus Supervisor</p>
+              <p className="text-xs text-muted-foreground">Group Amin</p>
             </div>
           </div>
           <Button 

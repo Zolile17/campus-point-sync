@@ -167,7 +167,7 @@ const Metrics = () => {
             value="revenue" 
             className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-black data-[state=active]:text-white transition-all"
           >
-            <DollarSign className="h-4 w-4" />
+           
             Revenue & Financial
           </TabsTrigger>
           <TabsTrigger 

@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { Building2, MapPin, Users, Activity, Plus, Settings } from "lucide-react";
 
-const campuses = [
+const campusesInitial = [
   {
     id: "1",
     name: "Cape Town",
@@ -51,6 +55,42 @@ const campuses = [
 ];
 
 const BrandManagement = () => {
+  const [campuses, setCampuses] = useState(campusesInitial);
+  const [isAddCampusOpen, setIsAddCampusOpen] = useState(false);
+  const [newCampus, setNewCampus] = useState({
+    name: "",
+    address: "",
+    terminal: ""
+  });
+
+  const handleAddCampus = () => {
+    // Create new campus object
+    const campusToAdd = {
+      id: String(campuses.length + 1),
+      name: newCampus.name,
+      fullName: `Capsicum-CCS ${newCampus.name}`,
+      address: newCampus.address,
+      terminal: newCampus.terminal,
+      activeUsers: 0,
+      status: "active",
+      totalTransactions: 0,
+      revenue: 0,
+    };
+    
+    // Add to campuses array
+    setCampuses([...campuses, campusToAdd]);
+    
+    alert(`✅ Campus Added Successfully!\n\nCampus: Capsicum-CCS ${newCampus.name}\nAddress: ${newCampus.address}\nTerminal: ${newCampus.terminal}\n\nStatus: Active\n\nThe new campus is now operational and ready for user assignments.`);
+    setIsAddCampusOpen(false);
+    
+    // Reset form
+    setNewCampus({
+      name: "",
+      address: "",
+      terminal: ""
+    });
+  };
+  
   const totalCampuses = campuses.length;
   const totalUsers = campuses.reduce((sum, campus) => sum + campus.activeUsers, 0);
   const totalRevenue = campuses.reduce((sum, campus) => sum + campus.revenue, 0);
@@ -66,10 +106,67 @@ const BrandManagement = () => {
           </h1>
           <p className="text-muted-foreground mt-1">Manage campus locations and terminals</p>
         </div>
-        <Button className="gap-2 bg-gradient-to-r from-red-600 to-black text-white hover:from-red-700 hover:to-gray-900">
-          <Plus className="h-4 w-4" />
-          Add Campus
-        </Button>
+        
+        <Dialog open={isAddCampusOpen} onOpenChange={setIsAddCampusOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-2 bg-gradient-to-r from-red-600 to-black text-white hover:from-red-700 hover:to-gray-900">
+              <Plus className="h-4 w-4" />
+              Add Campus
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Add New Campus</DialogTitle>
+              <DialogDescription>
+                Register a new Capsicum Culinary Studio location with terminal assignment.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="campus-name">Campus Name</Label>
+                <Input
+                  id="campus-name"
+                  placeholder="e.g., Johannesburg"
+                  value={newCampus.name}
+                  onChange={(e) => setNewCampus({...newCampus, name: e.target.value})}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  placeholder="e.g., 123 Main Street, Johannesburg, 2000"
+                  value={newCampus.address}
+                  onChange={(e) => setNewCampus({...newCampus, address: e.target.value})}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="terminal">Terminal ID</Label>
+                <Input
+                  id="terminal"
+                  placeholder="e.g., TERM-005"
+                  value={newCampus.terminal}
+                  onChange={(e) => setNewCampus({...newCampus, terminal: e.target.value.toUpperCase()})}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Terminal ID must be unique (e.g., TERM-005)
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAddCampusOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleAddCampus}
+                disabled={!newCampus.name || !newCampus.address || !newCampus.terminal}
+                className="bg-gradient-to-r from-red-600 to-black text-white hover:from-red-700 hover:to-gray-900"
+              >
+                Add Campus
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Overview Stats */}

@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { Users, Search, UserPlus, CheckCircle2, XCircle, Clock } from "lucide-react";
 
-const mockUsers = [
+const mockUsersInitial = [
   { id: "1", name: "Thabo Mkhize", email: "thabo.m@capsicum.co.za", role: "Cashier", campus: "Cape Town", terminal: "TERM-001", status: "active", lastLogin: "2025-10-01 09:23" },
   { id: "2", name: "Sarah Williams", email: "sarah.w@capsicum.co.za", role: "Cashier", campus: "Cape Town", terminal: "TERM-001", status: "active", lastLogin: "2025-10-01 14:45" },
   { id: "3", name: "Zanele Ndlovu", email: "zanele.n@capsicum.co.za", role: "Cashier", campus: "Durban", terminal: "TERM-002", status: "active", lastLogin: "2025-10-01 13:12" },
@@ -23,12 +25,63 @@ const mockUsers = [
 ];
 
 const UserManagement = () => {
+  const [users, setUsers] = useState(mockUsersInitial);
   const [searchTerm, setSearchTerm] = useState("");
   const [campusFilter, setCampusFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    role: "Cashier",
+    campus: "Cape Town",
+    terminal: "TERM-001"
+  });
 
-  const filteredUsers = mockUsers.filter((user) => {
+  const handleAddUser = () => {
+    // Create new user object
+    const userToAdd = {
+      id: String(users.length + 1),
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      campus: newUser.campus,
+      terminal: newUser.role === "Cashier" ? newUser.terminal : "-",
+      status: "pending",
+      lastLogin: "-"
+    };
+    
+    // Add to users array
+    setUsers([...users, userToAdd]);
+    
+    const terminalInfo = newUser.role === "Cashier" ? `\nTerminal: ${newUser.terminal}` : "";
+    alert(`✅ User Created Successfully!\n\nName: ${newUser.name}\nEmail: ${newUser.email}\nRole: ${newUser.role}\nCampus: ${newUser.campus}${terminalInfo}\n\n⏳ STATUS: PENDING APPROVAL\n\n⚠️ This user requires approval from a Group Admin before they can access the system. The user will receive an email notification once approved.`);
+    setIsAddUserOpen(false);
+    
+    // Reset form
+    setNewUser({
+      name: "",
+      email: "",
+      role: "Cashier",
+      campus: "Cape Town",
+      terminal: "TERM-001"
+    });
+  };
+
+  const handleApproveUser = (userId: string, userName: string) => {
+    setUsers(users.map(u => 
+      u.id === userId ? { ...u, status: "active", lastLogin: new Date().toLocaleString('en-ZA', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) } : u
+    ));
+    alert(`✅ User Approved!\n\n${userName} has been approved and can now access the system. An email notification has been sent.`);
+  };
+
+  const handleRejectUser = (userId: string, userName: string) => {
+    setUsers(users.filter(u => u.id !== userId));
+    alert(`❌ User Rejected!\n\n${userName}'s request has been denied and removed from the system.`);
+  };
+
+  const filteredUsers = users.filter((user) => {
     const matchesSearch = 
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -84,7 +137,7 @@ const UserManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Users</p>
-                <p className="text-2xl font-bold">{mockUsers.length}</p>
+                <p className="text-2xl font-bold">{users.length}</p>
               </div>
               <Users className="h-8 w-8 text-primary" />
             </div>
@@ -96,7 +149,7 @@ const UserManagement = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Active</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {mockUsers.filter(u => u.status === "active").length}
+                  {users.filter(u => u.status === "active").length}
                 </p>
               </div>
               <CheckCircle2 className="h-8 w-8 text-green-600" />
@@ -109,7 +162,7 @@ const UserManagement = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Pending</p>
                 <p className="text-2xl font-bold text-orange-600">
-                  {mockUsers.filter(u => u.status === "pending").length}
+                  {users.filter(u => u.status === "pending").length}
                 </p>
               </div>
               <Clock className="h-8 w-8 text-orange-600" />
@@ -122,7 +175,7 @@ const UserManagement = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Cashiers</p>
                 <p className="text-2xl font-bold">
-                  {mockUsers.filter(u => u.role === "Cashier").length}
+                  {users.filter(u => u.role === "Cashier").length}
                 </p>
               </div>
               <Users className="h-8 w-8 text-primary" />
@@ -145,10 +198,108 @@ const UserManagement = () => {
                   className="pl-10"
                 />
               </div>
-              <Button className="gap-2 bg-gradient-to-r from-red-600 to-black text-white hover:from-red-700 hover:to-gray-900">
-                <UserPlus className="h-4 w-4" />
-                Add User
-              </Button>
+              
+              <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
+                <DialogTrigger asChild>
+                  <Button className="gap-2 bg-gradient-to-r from-red-600 to-black text-white hover:from-red-700 hover:to-gray-900">
+                    <UserPlus className="h-4 w-4" />
+                    Add User
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>Add New User</DialogTitle>
+                    <DialogDescription>
+                      Create a new cashier or supervisor account. User will be pending approval.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="name">Full Name</Label>
+                      <Input
+                        id="name"
+                        placeholder="John Doe"
+                        value={newUser.name}
+                        onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="john.doe@capsicum.co.za"
+                        value={newUser.email}
+                        onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="role">Role</Label>
+                      <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Cashier">Cashier</SelectItem>
+                          <SelectItem value="Campus Supervisor">Campus Supervisor</SelectItem>
+                          <SelectItem value="Group Admin">Group Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="campus">Campus</Label>
+                      <Select value={newUser.campus} onValueChange={(value) => setNewUser({...newUser, campus: value})}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Cape Town">Cape Town</SelectItem>
+                          <SelectItem value="Durban">Durban</SelectItem>
+                          <SelectItem value="Nelson Mandela Bay">Nelson Mandela Bay</SelectItem>
+                          <SelectItem value="Pretoria">Pretoria</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {newUser.role === "Cashier" && (
+                      <div className="grid gap-2">
+                        <Label htmlFor="terminal">Terminal ID</Label>
+                        <Select value={newUser.terminal} onValueChange={(value) => setNewUser({...newUser, terminal: value})}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="TERM-001">TERM-001 </SelectItem>
+                            <SelectItem value="TERM-002">TERM-002 </SelectItem>
+                            <SelectItem value="TERM-003">TERM-003 </SelectItem>
+                            <SelectItem value="TERM-004">TERM-004 </SelectItem>
+                             <SelectItem value="TERM-001">TERM-005 </SelectItem>
+                            <SelectItem value="TERM-002">TERM-006 </SelectItem>
+                            <SelectItem value="TERM-003">TERM-007 </SelectItem>
+                            <SelectItem value="TERM-004">TERM-008 </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                    <div className="p-3 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                      <p className="text-sm text-orange-800 dark:text-orange-200">
+                        <strong>Note:</strong> New users will be created with "Pending Approval" status and require approval from a Group Admin before they can access the system.
+                      </p>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button 
+                      onClick={handleAddUser}
+                      disabled={!newUser.name || !newUser.email}
+                      className="bg-gradient-to-r from-red-600 to-black text-white hover:from-red-700 hover:to-gray-900"
+                    >
+                      Add User
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -197,7 +348,7 @@ const UserManagement = () => {
         <CardHeader>
           <CardTitle>Users</CardTitle>
           <CardDescription>
-            Showing {filteredUsers.length} of {mockUsers.length} users
+            Showing {filteredUsers.length} of {users.length} users
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -243,9 +394,30 @@ const UserManagement = () => {
                       </TableCell>
                       <TableCell className="text-sm">{user.lastLogin}</TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
-                          Edit
-                        </Button>
+                        {user.status === "pending" ? (
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="text-green-600 border-green-600 hover:bg-green-50"
+                              onClick={() => handleApproveUser(user.id, user.name)}
+                            >
+                              Approve
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="text-red-600 border-red-600 hover:bg-red-50"
+                              onClick={() => handleRejectUser(user.id, user.name)}
+                            >
+                              Reject
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button variant="ghost" size="sm">
+                            Edit
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
