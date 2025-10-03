@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, Search } from "lucide-react";
+import { Download, Search, Calendar, X } from "lucide-react";
 
 interface TransactionFiltersProps {
   searchTerm: string;
@@ -13,6 +14,10 @@ interface TransactionFiltersProps {
   onStatusChange: (value: string) => void;
   campusFilter: string;
   onCampusChange: (value: string) => void;
+  dateFilter: string;
+  onDateChange: (value: string) => void;
+  dateRange?: { from: Date | undefined; to: Date | undefined };
+  onDateRangeChange?: (range: { from: Date | undefined; to: Date | undefined }) => void;
   onExport: () => void;
   totalRecords: number;
   filteredRecords: number;
@@ -27,10 +32,69 @@ export const TransactionFilters = ({
   onStatusChange,
   campusFilter,
   onCampusChange,
+  dateFilter,
+  onDateChange,
+  dateRange = { from: undefined, to: undefined },
+  onDateRangeChange,
   onExport,
   totalRecords,
   filteredRecords,
 }: TransactionFiltersProps) => {
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [showCustomRange, setShowCustomRange] = useState(false);
+
+  const handleQuickDateSelect = (value: string) => {
+    if (value === "custom") {
+      setShowCustomRange(true);
+      if (onDateChange) onDateChange("custom");
+    } else {
+      setShowCustomRange(false);
+      if (onDateChange) onDateChange(value);
+      if (onDateRangeChange) {
+        onDateRangeChange({ from: undefined, to: undefined });
+      }
+    }
+  };
+
+  const handleApplyRange = () => {
+    if (startDate && endDate && onDateRangeChange) {
+      onDateRangeChange({
+        from: new Date(startDate),
+        to: new Date(endDate),
+      });
+      setShowCustomRange(false);
+    }
+  };
+
+  const handleClearRange = () => {
+    setStartDate("");
+    setEndDate("");
+    setShowCustomRange(false);
+    if (onDateChange) onDateChange("all");
+    if (onDateRangeChange) {
+      onDateRangeChange({ from: undefined, to: undefined });
+    }
+  };
+
+  const getDateFilterDisplay = () => {
+    if (dateFilter === "custom" && dateRange.from && dateRange.to) {
+      return `${dateRange.from.toLocaleDateString()} - ${dateRange.to.toLocaleDateString()}`;
+    }
+    switch (dateFilter) {
+      case "2025-10-01":
+        return "Today";
+      case "2025-09-30":
+        return "Yesterday";
+      case "all":
+        return "All Dates";
+      case "custom":
+        return "Custom Range";
+      default:
+        return "All Dates";
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Active Filters Bar */}
@@ -52,7 +116,12 @@ export const TransactionFilters = ({
               Campus: {campusFilter.replace('Capsicum-CCS ', '')}
             </span>
           )}
-          {statusFilter === 'all' && paymentMethodFilter === 'all' && campusFilter === 'all' && (
+          {dateFilter !== 'all' && (
+            <span className="px-2 py-1 bg-info/20 rounded text-info-foreground">
+              Date: {getDateFilterDisplay()}
+            </span>
+          )}
+          {statusFilter === 'all' && paymentMethodFilter === 'all' && campusFilter === 'all' && dateFilter === 'all' && (
             <span className="text-muted-foreground">None</span>
           )}
         </div>
@@ -82,7 +151,7 @@ export const TransactionFilters = ({
             </div>
 
             {/* Filter Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <Select value={campusFilter} onValueChange={onCampusChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Campuses" />
@@ -118,10 +187,80 @@ export const TransactionFilters = ({
                   <SelectItem value="pending">Pending</SelectItem>
                 </SelectContent>
               </Select>
+
+              <Select value={dateFilter} onValueChange={handleQuickDateSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Dates" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Dates</SelectItem>
+                  <SelectItem value="2025-10-01">Today</SelectItem>
+                  <SelectItem value="2025-09-30">Yesterday</SelectItem>
+                  <SelectItem value="custom">Custom Range</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Custom Date Range Panel */}
+      {showCustomRange && (
+        <Card className="shadow-sm border-2 border-blue-500">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-blue-600" />
+                <h3 className="text-lg font-semibold">Custom Date Range</h3>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowCustomRange(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Start Date</label>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  placeholder="yyyy/mm/dd"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">End Date</label>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  placeholder="yyyy/mm/dd"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={handleClearRange}
+              >
+                Clear
+              </Button>
+              <Button
+                onClick={handleApplyRange}
+                disabled={!startDate || !endDate}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700"
+              >
+                Apply Range
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
