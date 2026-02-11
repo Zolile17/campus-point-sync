@@ -101,7 +101,7 @@ const BrandManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 via-red-700 to-black bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-700 via-green-600 to-green-800 bg-clip-text text-transparent">
             Brand Management
           </h1>
           <p className="text-muted-foreground mt-1">Manage campus locations and terminals</p>
@@ -109,7 +109,7 @@ const BrandManagement = () => {
         
         <Dialog open={isAddCampusOpen} onOpenChange={setIsAddCampusOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2 bg-gradient-to-r from-red-600 to-black text-white hover:from-red-700 hover:to-gray-900">
+            <Button className="gap-2 bg-gradient-to-r from-green-700 to-green-900 text-white hover:from-green-800 hover:to-green-950">
               <Plus className="h-4 w-4" />
               Add Campus
             </Button>
@@ -160,7 +160,7 @@ const BrandManagement = () => {
               <Button 
                 onClick={handleAddCampus}
                 disabled={!newCampus.name || !newCampus.address || !newCampus.terminal}
-                className="bg-gradient-to-r from-red-600 to-black text-white hover:from-red-700 hover:to-gray-900"
+                className="bg-gradient-to-r from-green-700 to-green-900 text-white hover:from-green-800 hover:to-green-950"
               >
                 Add Campus
               </Button>
@@ -198,11 +198,11 @@ const BrandManagement = () => {
       {/* Campus Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {campuses.map((campus) => (
-          <Card key={campus.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-            <CardHeader className="bg-gradient-to-r from-red-600/5 via-red-500/5 to-black/5 border-b">
+          <Card key={campus.id} className="overflow-hidden hover:shadow-lg transition-shadow border-primary/20">
+            <CardHeader className="bg-gradient-to-r from-green-600/5 via-green-500/5 to-green-800/5 border-b border-green-600/10">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-red-600/10 to-black/10">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-green-600/10 to-green-800/10">
                     <Building2 className="h-6 w-6 text-primary" />
                   </div>
                   <div>

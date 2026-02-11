@@ -124,7 +124,7 @@ const UserManagement = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 via-red-700 to-black bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-green-700 via-green-600 to-green-800 bg-clip-text text-transparent">
           User Management
         </h1>
         <p className="text-muted-foreground mt-1">Manage cashiers and supervisors across all campuses</p>
@@ -201,7 +201,7 @@ const UserManagement = () => {
               
               <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
                 <DialogTrigger asChild>
-                  <Button className="gap-2 bg-gradient-to-r from-red-600 to-black text-white hover:from-red-700 hover:to-gray-900">
+                  <Button className="gap-2 bg-gradient-to-r from-green-700 to-green-900 text-white hover:from-green-800 hover:to-green-950">
                     <UserPlus className="h-4 w-4" />
                     Add User
                   </Button>
@@ -293,7 +293,7 @@ const UserManagement = () => {
                     <Button 
                       onClick={handleAddUser}
                       disabled={!newUser.name || !newUser.email}
-                      className="bg-gradient-to-r from-red-600 to-black text-white hover:from-red-700 hover:to-gray-900"
+                      className="bg-gradient-to-r from-green-700 to-green-900 text-white hover:from-green-800 hover:to-green-950"
                     >
                       Add User
                     </Button>
