@@ -11,27 +11,19 @@ interface TransactionTableProps {
 export const TransactionTable = ({ transactions }: TransactionTableProps) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "approved":
-        return <CheckCircle2 className="h-4 w-4" />;
-      case "declined":
-        return <XCircle className="h-4 w-4" />;
-      case "pending":
-        return <Clock className="h-4 w-4" />;
-      default:
-        return null;
+      case "approved": return <CheckCircle2 className="h-4 w-4" />;
+      case "declined": return <XCircle className="h-4 w-4" />;
+      case "pending": return <Clock className="h-4 w-4" />;
+      default: return null;
     }
   };
 
   const getStatusVariant = (status: string): "default" | "secondary" | "destructive" => {
     switch (status) {
-      case "approved":
-        return "default";
-      case "declined":
-        return "destructive";
-      case "pending":
-        return "secondary";
-      default:
-        return "default";
+      case "approved": return "default";
+      case "declined": return "destructive";
+      case "pending": return "secondary";
+      default: return "default";
     }
   };
 
@@ -68,7 +60,7 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
                   </div>
                 </TableCell>
                 <TableCell className="font-mono text-sm">{transaction.terminalId}</TableCell>
-                <TableCell>{transaction.campus.replace('Capsicum-CCS ', '')}</TableCell>
+                <TableCell>{transaction.campus.replace('Intellergy Cafe ', '')}</TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1 max-w-xs">
                     {transaction.cartItems.map((item, idx) => (
@@ -79,7 +71,7 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <span className="text-lg font-bold bg-gradient-to-r from-red-600 to-black bg-clip-text text-transparent">
+                  <span className="text-lg font-bold text-primary">
                     R{(transaction.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)}
                   </span>
                 </TableCell>
@@ -92,10 +84,7 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge 
-                    variant={getStatusVariant(transaction.paymentStatus)}
-                    className="gap-1 capitalize"
-                  >
+                  <Badge variant={getStatusVariant(transaction.paymentStatus)} className="gap-1 capitalize">
                     {getStatusIcon(transaction.paymentStatus)}
                     {transaction.paymentStatus}
                   </Badge>
