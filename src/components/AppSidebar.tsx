@@ -1,6 +1,6 @@
-import { LayoutDashboard, TrendingUp, Users, Building2, LogOut, User } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Users, Building2, LogOut } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import capsicumLogo from "@/assets/capsicum-logo.png";
+import intellergyLogo from "@/assets/intellergy-logo.png";
 import {
   Sidebar,
   SidebarContent,
@@ -16,26 +16,10 @@ import {
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
-  {
-    title: "Dashboard",
-    url: "/",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Metrics",
-    url: "/metrics",
-    icon: TrendingUp,
-  },
-  {
-    title: "User Management",
-    url: "/users",
-    icon: Users,
-  },
-  {
-    title: "Brand Management",
-    url: "/brands",
-    icon: Building2,
-  },
+  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Metrics", url: "/metrics", icon: TrendingUp },
+  { title: "User Management", url: "/users", icon: Users },
+  { title: "Brand Management", url: "/brands", icon: Building2 },
 ];
 
 export function AppSidebar() {
@@ -43,12 +27,10 @@ export function AppSidebar() {
     <Sidebar className="border-r border-border">
       <SidebarHeader className="border-b border-sidebar-border p-6">
         <div className="flex items-center gap-3">
-          <img src={capsicumLogo} alt="Capsicum" className="h-12 w-auto object-contain" />
-        
+          <img src={intellergyLogo} alt="Intellergy Cafe" className="h-12 w-auto object-contain" />
         </div>
       </SidebarHeader>
       <SidebarContent>
-        
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -75,15 +57,14 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       
-      {/* User Profile Section */}
       <SidebarFooter className="border-t border-sidebar-border p-4">
         <div className="space-y-3">
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-red-600/10 to-black/10">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-red-600 to-black flex items-center justify-center text-white font-bold">
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/10">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center text-white font-bold">
               GA
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground">Group Amin</p>
+              <p className="text-xs text-muted-foreground">Group Admin</p>
             </div>
           </div>
           <Button 

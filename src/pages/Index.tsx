@@ -12,76 +12,45 @@ const Index = () => {
   const [paymentMethodFilter, setPaymentMethodFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [campusFilter, setCampusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
 
-  // Calculate dashboard stats
   const stats = useMemo(() => {
     const totalRevenue = mockTransactions
       .filter(t => t.paymentStatus === "approved")
       .reduce((sum, t) => sum + t.total, 0);
-    
     const totalTransactions = mockTransactions.length;
-    
     const approvedTransactions = mockTransactions.filter(t => t.paymentStatus === "approved").length;
     const approvalRate = (approvedTransactions / totalTransactions) * 100;
-    
     const averageTransactionValue = totalRevenue / approvedTransactions;
-
-    return {
-      totalRevenue,
-      totalTransactions,
-      approvalRate,
-      averageTransactionValue
-    };
+    return { totalRevenue, totalTransactions, approvalRate, averageTransactionValue };
   }, []);
 
-  // Filter transactions
   const filteredTransactions = useMemo(() => {
-    console.log("Current filters:", { searchTerm, paymentMethodFilter, statusFilter, campusFilter });
-    
-    const filtered = mockTransactions.filter((transaction) => {
-      // Search filter
+    return mockTransactions.filter((transaction) => {
       const matchesSearch = searchTerm === "" || 
         transaction.transactionNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         transaction.terminalId.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      // Payment method filter
-      const matchesPaymentMethod = 
-        paymentMethodFilter === "all" || transaction.paymentMethod === paymentMethodFilter;
-      
-      // Status filter
-      const matchesStatus = 
-        statusFilter === "all" || transaction.paymentStatus === statusFilter;
-      
-      // Campus filter
-      const matchesCampus = 
-        campusFilter === "all" || transaction.campus === campusFilter;
-
-      const passes = matchesSearch && matchesPaymentMethod && matchesStatus && matchesCampus;
-      
-      return passes;
+      const matchesPaymentMethod = paymentMethodFilter === "all" || transaction.paymentMethod === paymentMethodFilter;
+      const matchesStatus = statusFilter === "all" || transaction.paymentStatus === statusFilter;
+      const matchesCampus = campusFilter === "all" || transaction.campus === campusFilter;
+      const matchesDate = dateFilter === "all" || transaction.timestamp.toISOString().split('T')[0] === dateFilter;
+      return matchesSearch && matchesPaymentMethod && matchesStatus && matchesCampus && matchesDate;
     });
-    
-    console.log(`Filtered ${filtered.length} out of ${mockTransactions.length} transactions`);
-    return filtered;
-  }, [searchTerm, paymentMethodFilter, statusFilter, campusFilter]);
+  }, [searchTerm, paymentMethodFilter, statusFilter, campusFilter, dateFilter]);
 
-  const handleExport = () => {
-    exportToCSV(filteredTransactions);
-  };
+  const handleExport = () => exportToCSV(filteredTransactions);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 via-red-700 to-black bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-700 via-green-600 to-green-800 bg-clip-text text-transparent">
             Transaction Dashboard
           </h1>
           <p className="text-muted-foreground mt-1">Real-time transaction monitoring and reconciliation</p>
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
           title="Total Revenue"
@@ -97,7 +66,7 @@ const Index = () => {
           description="All payment attempts"
           icon={Activity}
           trend={{ value: 8.2, isPositive: true }}
-          gradient="linear-gradient(135deg, #4F46E5 0%, #2563EB 100%)"
+          gradient="linear-gradient(135deg, #2E7D32 0%, #388E3C 100%)"
         />
         <StatsCard
           title="Successful"
@@ -117,7 +86,6 @@ const Index = () => {
         />
       </div>
 
-      {/* Filters */}
       <TransactionFilters
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -127,18 +95,17 @@ const Index = () => {
         onStatusChange={setStatusFilter}
         campusFilter={campusFilter}
         onCampusChange={setCampusFilter}
+        dateFilter={dateFilter}
+        onDateChange={setDateFilter}
         onExport={handleExport}
         totalRecords={mockTransactions.length}
         filteredRecords={filteredTransactions.length}
       />
 
-      {/* Transaction Table */}
       <Card className="shadow-sm">
         <div className="p-6 border-b border-border">
           <h2 className="text-xl font-semibold text-foreground">Transaction History</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Detailed view of all transactions
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">Detailed view of all transactions</p>
         </div>
         <TransactionTable transactions={filteredTransactions} />
       </Card>
