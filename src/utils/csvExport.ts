@@ -1,62 +1,54 @@
+import { format } from "date-fns";
 import { Transaction } from "@/types/transaction";
+import { DEMO_NOW } from "@/lib/demoClock";
+
+const escape = (cell: string | number) => `"${String(cell).replace(/"/g, '""')}"`;
 
 export const exportToCSV = (transactions: Transaction[]) => {
-  // Define CSV headers
   const headers = [
     "Transaction Number",
     "Date",
     "Time",
-    "Terminal ID",
     "Campus",
+    "Terminal ID",
+    "Cashier",
     "Items",
-    "Subtotal",
-    "Tax",
+    "Subtotal (excl. VAT)",
+    "VAT",
     "Total",
     "Payment Method",
     "Payment Status",
     "Card Last Four",
-    "Decline Reason"
+    "Decline / Cancel Reason",
   ];
 
-  // Convert transactions to CSV rows
-  const rows = transactions.map(transaction => {
-    const itemsList = transaction.cartItems
-      .map(item => `${item.name} (${item.quantity}x R${item.price})`)
-      .join("; ");
+  const rows = transactions.map((t) => [
+    t.transactionNumber,
+    format(t.timestamp, "yyyy-MM-dd"),
+    format(t.timestamp, "HH:mm:ss"),
+    t.campus,
+    t.terminalId,
+    t.cashier,
+    t.cartItems.map((i) => `${i.quantity}x ${i.name} (R${i.price})`).join("; "),
+    t.subtotal.toFixed(2),
+    t.tax.toFixed(2),
+    t.total.toFixed(2),
+    t.paymentMethod.toUpperCase(),
+    t.paymentStatus.toUpperCase(),
+    t.cardLastFour || "",
+    t.declineReason || t.cancelReason || "",
+  ]);
 
-    return [
-      transaction.transactionNumber,
-      new Date(transaction.timestamp).toLocaleDateString(),
-      new Date(transaction.timestamp).toLocaleTimeString(),
-      transaction.terminalId,
-      transaction.campus,
-      itemsList,
-      `R${transaction.subtotal.toFixed(2)}`,
-      `R${transaction.tax.toFixed(2)}`,
-      `R${transaction.total.toFixed(2)}`,
-      transaction.paymentMethod.toUpperCase(),
-      transaction.paymentStatus.toUpperCase(),
-      transaction.cardLastFour || "N/A",
-      transaction.declineReason || "N/A"
-    ];
-  });
+  const csv = [headers, ...rows].map((r) => r.map(escape).join(",")).join("\n");
 
-  // Combine headers and rows
-  const csvContent = [
-    headers.join(","),
-    ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
-  ].join("\n");
-
-  // Create and trigger download
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
-  
-  link.setAttribute("href", url);
-  link.setAttribute("download", `capsicum_transactions_${new Date().toISOString().split('T')[0]}.csv`);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `capsicum_transactions_${format(DEMO_NOW, "yyyy-MM-dd_HHmm")}.csv`;
   link.style.visibility = "hidden";
-  
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };

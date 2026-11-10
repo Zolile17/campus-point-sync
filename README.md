@@ -1,73 +1,47 @@
-# Welcome to your Lovable project
+# Capsicum · Campus POS Dashboard
 
-## Project info
+Admin dashboard for the Capsicum Culinary Studio campus café POS. Tracks card
+transactions from each campus terminal, with revenue, volume and menu analytics.
 
-**URL**: https://lovable.dev/projects/deb2f44c-75a7-447c-9bb6-cbc1ff3bea15
+## Pages
 
-## How can I edit this code?
+- **Dashboard** — today's KPIs vs. the same time last week, hourly sales, campus breakdown, and a filterable, paginated transaction history with CSV export
+- **Metrics** — revenue, volume and product analytics for the last 7 days, 30 days or all time
+- **User Management** — cashiers and supervisors, with approval flow for new accounts
+- **Brand Management** — campuses, terminals and per-campus trading
 
-There are several ways of editing your application.
+## Demo data
 
-**Use Lovable**
+All data is generated in `src/data/mockTransactions.ts` from a seeded random
+generator, so it's identical on every load. It covers the 45 days up to
+**Tuesday 10 November 2026, 10:00** (Mon–Fri 07:00–16:00, Saturday mornings,
+closed Sundays).
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/deb2f44c-75a7-447c-9bb6-cbc1ff3bea15) and start prompting.
+The demo "current time" lives in `src/lib/demoClock.ts`:
 
-Changes made via Lovable will be committed automatically to this repo.
+```ts
+export const DEMO_NOW = new Date(2026, 10, 10, 10, 0, 0);
+```
 
-**Use your preferred IDE**
+Change it to `new Date()` to have the data always end at the real current time.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+The café menu and campuses are in `src/data/menu.ts` (shared with the POS).
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Branding
 
-Follow these steps:
+- Theme tokens are in `src/index.css` — neutral ink/white surfaces with Capsicum red (`--brand`) used as an accent only
+- Logos: `src/assets/capsicum-logo-dark.png` (for light backgrounds), `capsicum-logo-light.png` (for dark backgrounds), `capsicum-pepper.png` (icon)
+- Light and dark mode via the toggle in the top bar
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Running locally
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```powershell
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Then open http://localhost:8080.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Stack
 
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/deb2f44c-75a7-447c-9bb6-cbc1ff3bea15) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Vite · React · TypeScript · Tailwind CSS · shadcn/ui · Recharts · date-fns
