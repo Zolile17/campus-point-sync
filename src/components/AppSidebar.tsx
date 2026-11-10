@@ -40,7 +40,7 @@ export function AppSidebar() {
             <div className="flex items-center gap-2 rounded-md border border-sidebar-border px-2.5 py-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-sidebar-primary" />
               <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-sidebar-foreground">
-                Campus Deli POS
+                Campus Deli
               </span>
             </div>
           </div>
