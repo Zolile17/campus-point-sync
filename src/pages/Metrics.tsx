@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import {
   ArrowDown, ArrowUp, ArrowUpDown, Banknote, CalendarDays, Coffee, CreditCard, Package, Plus, Receipt,
@@ -178,7 +178,6 @@ const Metrics = () => {
   const SortIcon = ({ f }: { f: SortField }) =>
     sortField !== f ? <ArrowUpDown className="h-3.5 w-3.5 opacity-40" /> : sortAsc ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowDown className="h-3.5 w-3.5" />;
 
-  const topCampus = [...a.campuses].sort((x, y) => y.revenue - x.revenue)[0];
   const bestSeller = [...a.itemList].sort((x, y) => y.quantity - x.quantity)[0];
   const maxCampusRevenue = Math.max(...a.campuses.map((c) => c.revenue));
   const maxCategoryRevenue = Math.max(...a.categories.map((c) => c.revenue));
@@ -190,7 +189,7 @@ const Metrics = () => {
       <PageHeader
         eyebrow="Analytics"
         title="Metrics & Analytics"
-        description="Payments, volume and menu performance across all campuses"
+        description="Revenue, volume and menu performance across all campuses"
         actions={
           <Segmented
             value={range}
@@ -203,7 +202,7 @@ const Metrics = () => {
       <Tabs defaultValue="revenue" className="space-y-6">
         <TabsList className="h-10 w-full justify-start gap-1 rounded-none border-b border-border bg-transparent p-0">
           {[
-            { v: "revenue", label: "Payments", Icon: Banknote },
+            { v: "revenue", label: "Revenue", Icon: Banknote },
             { v: "volume", label: "Volume", Icon: Receipt },
             { v: "products", label: "Products", Icon: Package },
           ].map(({ v, label, Icon }) => (
@@ -221,13 +220,13 @@ const Metrics = () => {
         {/* ---------------- Revenue ---------------- */}
         <TabsContent value="revenue" className="mt-0 space-y-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatsCard hero title="Approved payments" value={formatRand(a.summary.revenue)} icon={Banknote} description={presetLabel[range]} sparkline={a.daily.filter((d) => d.key !== dayKey(DEMO_NOW) && parseISO(d.key).getDay() !== 6).map((d) => d.revenue)} />
-            <StatsCard tone="info" title="Average per trading day" value={formatRand(a.avgDaily)} icon={CalendarDays} description="Excludes today" />
-            <StatsCard tone="warning" title="Top campus" value={topCampus?.name ?? "—"} icon={Trophy} description={topCampus ? `${formatRand(topCampus.revenue, 0)} · ${((topCampus.revenue / Math.max(a.summary.revenue, 1)) * 100).toFixed(0)}% of payments` : ""} />
-            <StatsCard tone="teal" title="VAT collected" value={formatRand(a.vat)} icon={Receipt} description="15% included in prices" />
+            <StatsCard accent title="Approved revenue" value={formatRand(a.summary.revenue)} icon={Banknote} description={presetLabel[range]} />
+            <StatsCard title="Average per trading day" value={formatRand(a.avgDaily)} icon={CalendarDays} description="Excludes today" />
+            <StatsCard title="Average basket" value={formatRand(a.summary.avgBasket)} icon={ShoppingBasket} description={`${a.summary.approved.toLocaleString("en-US")} paid orders`} />
+            <StatsCard title="VAT collected" value={formatRand(a.vat)} icon={Receipt} description="15% included in prices" />
           </div>
 
-          <Panel title="Daily payments" description="Approved card payments per trading day · Saturdays are half-days, closed Sundays · today is partial">
+          <Panel title="Daily revenue" description="Approved card revenue per trading day · Saturdays are half-days, closed Sundays · today is partial">
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={a.daily} margin={{ top: 8, right: 8, left: 0, bottom: 0 }} barCategoryGap="22%">
@@ -240,9 +239,9 @@ const Metrics = () => {
                       <ChartTooltip {...rest} payload={payload} label={payload?.[0]?.payload?.tooltip} formatter={(v) => formatRand(v, 0)} />
                     )}
                   />
-                  <Bar dataKey="revenue" name="Payments" radius={[4, 4, 0, 0]} maxBarSize={28}>
+                  <Bar dataKey="revenue" name="Revenue" radius={[4, 4, 0, 0]} maxBarSize={28}>
                     {a.daily.map((d) => (
-                      <Cell key={d.key} fill={SERIES[0]} fillOpacity={d.key === dayKey(DEMO_NOW) ? 0.45 : 1} />
+                      <Cell key={d.key} fill="hsl(var(--brand))" fillOpacity={d.key === dayKey(DEMO_NOW) ? 0.45 : 1} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -251,7 +250,7 @@ const Metrics = () => {
           </Panel>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <Panel title="Payments by campus" description="Approved payments and share of total" bodyClassName="p-5 space-y-5">
+            <Panel title="Revenue by campus" description="Approved revenue and share of total" bodyClassName="p-5 space-y-5">
               {[...a.campuses].sort((x, y) => y.revenue - x.revenue).map((c) => (
                 <HBar
                   key={c.name}
@@ -264,7 +263,7 @@ const Metrics = () => {
                 />
               ))}
             </Panel>
-            <Panel title="Payments by category" description="Item-level sales across the menu" bodyClassName="p-5 space-y-5">
+            <Panel title="Revenue by category" description="Item-level sales across the menu" bodyClassName="p-5 space-y-5">
               {a.categories.map((c) => (
                 <HBar
                   key={c.name}
@@ -283,14 +282,14 @@ const Metrics = () => {
         {/* ---------------- Volume ---------------- */}
         <TabsContent value="volume" className="mt-0 space-y-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatsCard tone="brand" title="Transactions" value={a.summary.count.toLocaleString("en-US")} icon={Receipt} description={`${a.summary.items.toLocaleString("en-US")} items sold`} />
-            <StatsCard tone="success" title="Approval rate" value={`${a.summary.approvalRate.toFixed(1)}%`} icon={CreditCard} description={`${a.summary.declined} declined · ${a.summary.cancelled} cancelled`} />
-            <StatsCard tone="warning" title="Busiest hour" value={a.peak.hour} icon={CalendarDays} description={`${a.peak.avg} sales per day on average`} />
-            <StatsCard tone="info" title="Debit share" value={`${debitShare.toFixed(0)}%`} icon={CreditCard} description={`${a.debit.length.toLocaleString("en-US")} debit · ${a.credit.length.toLocaleString("en-US")} credit`} />
+            <StatsCard accent title="Transactions" value={a.summary.count.toLocaleString("en-US")} icon={Receipt} description={`${a.summary.items.toLocaleString("en-US")} items sold`} />
+            <StatsCard title="Approval rate" value={`${a.summary.approvalRate.toFixed(1)}%`} icon={CreditCard} description={`${a.summary.declined} declined`} />
+            <StatsCard title="Busiest hour" value={a.peak.hour} icon={CalendarDays} description={`${a.peak.avg} sales per day on average`} />
+            <StatsCard title="Debit share" value={`${debitShare.toFixed(0)}%`} icon={CreditCard} description={`${a.debit.length.toLocaleString("en-US")} debit · ${a.credit.length.toLocaleString("en-US")} credit`} />
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <Panel title="Peak hours" description="Average approved sales per trading day, by hour · busiest hour highlighted">
+            <Panel title="Peak hours" description="Average approved sales per trading day, by hour">
               <div className="h-[260px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={a.hours} margin={{ top: 8, right: 8, left: -12, bottom: 0 }} barCategoryGap="24%">
@@ -300,14 +299,14 @@ const Metrics = () => {
                     <Tooltip cursor={{ fill: "hsl(var(--muted))", opacity: 0.6 }} content={<ChartTooltip formatter={(v) => `${v} / day`} />} />
                     <Bar dataKey="avg" name="Sales" radius={[4, 4, 0, 0]} maxBarSize={34}>
                       {a.hours.map((h) => (
-                        <Cell key={h.hour} fill={SERIES[0]} fillOpacity={h.hour === a.peak.hour ? 1 : 0.45} />
+                        <Cell key={h.hour} fill={h.hour === a.peak.hour ? "hsl(var(--brand))" : SERIES[1]} />
                       ))}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </Panel>
-            <Panel title="Payments by weekday" description="Average approved payments per trading day">
+            <Panel title="Revenue by weekday" description="Average approved revenue per trading day">
               <div className="h-[260px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={a.weekday} margin={{ top: 8, right: 8, left: 0, bottom: 0 }} barCategoryGap="28%">
@@ -315,7 +314,7 @@ const Metrics = () => {
                     <XAxis dataKey="day" {...axisProps} />
                     <YAxis {...axisProps} width={56} tickFormatter={formatRandCompact} />
                     <Tooltip cursor={{ fill: "hsl(var(--muted))", opacity: 0.6 }} content={<ChartTooltip formatter={(v) => formatRand(v, 0)} />} />
-                    <Bar dataKey="avg" name="Avg payments" fill={SERIES[0]} radius={[4, 4, 0, 0]} maxBarSize={40} />
+                    <Bar dataKey="avg" name="Avg revenue" fill={SERIES[1]} radius={[4, 4, 0, 0]} maxBarSize={40} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -329,7 +328,7 @@ const Metrics = () => {
                   <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <th className="px-5 py-2.5 font-medium">Terminal</th>
                     <th className="px-3 py-2.5 text-right font-medium">Transactions</th>
-                    <th className="px-3 py-2.5 text-right font-medium">Payments</th>
+                    <th className="px-3 py-2.5 text-right font-medium">Revenue</th>
                     <th className="px-3 py-2.5 text-right font-medium">Avg basket</th>
                     <th className="px-5 py-2.5 text-right font-medium">Approval</th>
                   </tr>
@@ -365,10 +364,10 @@ const Metrics = () => {
         {/* ---------------- Products ---------------- */}
         <TabsContent value="products" className="mt-0 space-y-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatsCard tone="info" title="Menu items sold" value={String(a.itemList.length)} icon={Package} description="distinct items" />
-            <StatsCard tone="teal" title="Units sold" value={a.itemList.reduce((s, i) => s + i.quantity, 0).toLocaleString("en-US")} icon={ShoppingBasket} description={presetLabel[range]} />
-            <StatsCard tone="success" title="Item sales" value={formatRand(a.itemRevenue)} icon={Banknote} description="approved orders" />
-            <StatsCard tone="brand" title="Best seller" value={bestSeller?.name.replace(" with Fries/Side Salad", "") ?? "—"} icon={Trophy} description={`${bestSeller?.quantity.toLocaleString("en-US") ?? 0} sold`} />
+            <StatsCard title="Menu items sold" value={String(a.itemList.length)} icon={Package} description="distinct items" />
+            <StatsCard title="Units sold" value={a.itemList.reduce((s, i) => s + i.quantity, 0).toLocaleString("en-US")} icon={ShoppingBasket} description={presetLabel[range]} />
+            <StatsCard title="Item revenue" value={formatRand(a.itemRevenue)} icon={Banknote} description="approved orders" />
+            <StatsCard accent title="Best seller" value={bestSeller?.name.replace(" with Fries/Side Salad", "") ?? "—"} icon={Trophy} description={`${bestSeller?.quantity.toLocaleString("en-US") ?? 0} sold`} />
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -433,7 +432,7 @@ const Metrics = () => {
                     ["name", "Item", "text-left pl-5"],
                     [null, "Category", "text-left"],
                     ["quantity", "Units", "text-right"],
-                    ["revenue", "Sales", "text-right"],
+                    ["revenue", "Revenue", "text-right"],
                     ["price", "Price", "text-right"],
                     [null, "Share", "text-right"],
                     [null, "Orders", "text-right pr-5"],
