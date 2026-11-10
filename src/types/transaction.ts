@@ -1,5 +1,19 @@
 export type ItemCategory = "All Day Menu" | "Beverages" | "Add-ons";
 
+export type Campus = "Cape Town" | "Durban" | "Nelson Mandela Bay" | "Pretoria";
+
+export type PaymentMethod = "debit" | "credit";
+
+export type PaymentStatus = "approved" | "declined" | "pending" | "cancelled";
+
+export interface MenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: ItemCategory;
+}
+
 export interface CartItem {
   id: string;
   name: string;
@@ -13,15 +27,21 @@ export interface Transaction {
   transactionNumber: string;
   timestamp: Date;
   terminalId: string;
-  campus: string;
+  campus: Campus;
+  cashier: string;
   cartItems: CartItem[];
+  /** Amount excluding VAT */
   subtotal: number;
+  /** VAT portion (15%, prices are VAT-inclusive) */
   tax: number;
+  /** Amount charged to the card */
   total: number;
-  paymentMethod: "debit" | "credit";
-  paymentStatus: "approved" | "declined" | "pending";
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
   cardLastFour?: string;
   declineReason?: string;
+  /** Why the sale was cancelled before payment completed */
+  cancelReason?: string;
 }
 
 export interface DashboardStats {

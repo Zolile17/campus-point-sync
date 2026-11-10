@@ -1,114 +1,171 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import { addDays, format, parseISO, startOfDay } from "date-fns";
+import { Ban, Banknote, CheckCircle2, Receipt, XCircle } from "lucide-react";
 import { StatsCard } from "@/components/dashboard/StatsCard";
-import { TransactionFilters } from "@/components/dashboard/TransactionFilters";
+import { DEFAULT_FILTERS, FilterState, TransactionFilters } from "@/components/dashboard/TransactionFilters";
 import { TransactionTable } from "@/components/dashboard/TransactionTable";
-import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { mockTransactions } from "@/data/mockTransactions";
 import { exportToCSV } from "@/utils/csvExport";
-import { DollarSign, TrendingUp, CreditCard, Activity } from "lucide-react";
+import { DEMO_NOW, DateRange, dayKey, formatRand, presetLabel, resolvePreset } from "@/lib/demoClock";
+import { inRange, pctChange, summarise } from "@/lib/analytics";
+import { Transaction } from "@/types/transaction";
+
+/** The equivalent earlier period to compare the selected range against. */
+function comparisonFor(filters: FilterState): { range: DateRange; label: string } | null {
+  const today = startOfDay(DEMO_NOW);
+  switch (filters.date) {
+    case "today":
+      return {
+        range: { from: addDays(today, -7), to: addDays(DEMO_NOW, -7) },
+        label: `vs last ${format(DEMO_NOW, "EEE")} by ${format(DEMO_NOW, "HH:mm")}`,
+      };
+    case "yesterday":
+      return {
+        range: { from: addDays(today, -8), to: addDays(today, -7) },
+        label: `vs ${format(addDays(today, -8), "EEE d MMM")}`,
+      };
+    case "7d":
+      return { range: { from: addDays(today, -13), to: addDays(today, -6) }, label: "vs previous 7 days" };
+    case "30d":
+      return { range: { from: addDays(today, -59), to: addDays(today, -29) }, label: "vs previous 30 days" };
+    default:
+      return null;
+  }
+}
 
 const Index = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [paymentMethodFilter, setPaymentMethodFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [campusFilter, setCampusFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("all");
+  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+
+  const range = useMemo(
+    () =>
+      resolvePreset(filters.date, {
+        from: filters.customFrom ? parseISO(filters.customFrom) : undefined,
+        to: filters.customTo ? parseISO(filters.customTo) : undefined,
+      }),
+    [filters.date, filters.customFrom, filters.customTo],
+  );
+
+  // Campus + payment method apply to the stats cards; status and search only narrow the table.
+  const scope = (t: Transaction) =>
+    (filters.campus === "all" || t.campus === filters.campus) &&
+    (filters.method === "all" || t.paymentMethod === filters.method);
 
   const stats = useMemo(() => {
-    const totalRevenue = mockTransactions
-      .filter(t => t.paymentStatus === "approved")
-      .reduce((sum, t) => sum + t.total, 0);
-    const totalTransactions = mockTransactions.length;
-    const approvedTransactions = mockTransactions.filter(t => t.paymentStatus === "approved").length;
-    const approvalRate = (approvedTransactions / totalTransactions) * 100;
-    const averageTransactionValue = totalRevenue / approvedTransactions;
-    return { totalRevenue, totalTransactions, approvalRate, averageTransactionValue };
-  }, []);
+    const current = summarise(mockTransactions.filter((t) => scope(t) && inRange(t, range)));
+    const cmp = comparisonFor(filters);
+    const previous = cmp
+      ? summarise(mockTransactions.filter((t) => scope(t) && t.timestamp >= cmp.range.from && t.timestamp < cmp.range.to))
+      : null;
+    return { current, previous, cmpLabel: cmp?.label };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [range, filters.campus, filters.method, filters.date]);
 
-  const filteredTransactions = useMemo(() => {
-    return mockTransactions.filter((transaction) => {
-      const matchesSearch = searchTerm === "" || 
-        transaction.transactionNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        transaction.terminalId.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesPaymentMethod = paymentMethodFilter === "all" || transaction.paymentMethod === paymentMethodFilter;
-      const matchesStatus = statusFilter === "all" || transaction.paymentStatus === statusFilter;
-      const matchesCampus = campusFilter === "all" || transaction.campus === campusFilter;
-      const matchesDate = dateFilter === "all" || transaction.timestamp.toISOString().split('T')[0] === dateFilter;
-      return matchesSearch && matchesPaymentMethod && matchesStatus && matchesCampus && matchesDate;
+  const filtered = useMemo(() => {
+    const q = filters.search.trim().toLowerCase();
+    return mockTransactions.filter((t) => {
+      if (!scope(t) || !inRange(t, range)) return false;
+      if (filters.status !== "all" && t.paymentStatus !== filters.status) return false;
+      if (q) {
+        const hay = `${t.transactionNumber} ${t.terminalId} ${t.cashier} ${t.cartItems.map((i) => i.name).join(" ")}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
     });
-  }, [searchTerm, paymentMethodFilter, statusFilter, campusFilter, dateFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, range]);
 
-  const handleExport = () => exportToCSV(filteredTransactions);
+  const { current: c, previous: p, cmpLabel } = stats;
+  const trend = (now: number, before: number | undefined) => (p && before !== undefined ? pctChange(now, before) : null);
+  const successRate = c.count ? (c.approved / c.count) * 100 : 0;
+  const declineRate = c.count ? (c.declined / c.count) * 100 : 0;
+  const cancelRate = c.count ? (c.cancelled / c.count) * 100 : 0;
+
+  const periodLabel =
+    filters.date === "today"
+      ? `Today so far · ${format(DEMO_NOW, "HH:mm")}`
+      : filters.date === "custom" && range
+        ? `${format(range.from, "d MMM")} – ${format(range.to, "d MMM yyyy")}`
+        : presetLabel[filters.date];
+
+  const minDate = dayKey(mockTransactions[mockTransactions.length - 1].timestamp);
+  const maxDate = dayKey(DEMO_NOW);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-700 via-green-600 to-green-800 bg-clip-text text-transparent">
-            Transaction Dashboard
-          </h1>
-          <p className="text-muted-foreground mt-1">Real-time transaction monitoring and reconciliation</p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow={format(DEMO_NOW, "EEEE, d MMMM yyyy")}
+        title="Transaction Dashboard"
+        description="Card payments across all Capsicum campus cafés"
+        actions={
+          <span className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground">
+            Showing <span className="text-foreground">{periodLabel}</span>
+            {filters.campus !== "all" && <> · <span className="text-foreground">{filters.campus}</span></>}
+          </span>
+        }
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <StatsCard
-          title="Total Revenue"
-          value={`R${stats.totalRevenue.toFixed(2)}`}
-          description={`Avg: R${stats.averageTransactionValue.toFixed(2)}`}
-          icon={TrendingUp}
-          trend={{ value: 12.5, isPositive: true }}
-          gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)"
+          accent
+          title="Revenue"
+          value={formatRand(c.revenue)}
+          icon={Banknote}
+          trend={trend(c.revenue, p?.revenue)}
+          description={cmpLabel ?? `${c.approved.toLocaleString("en-US")} approved payments`}
         />
         <StatsCard
-          title="Total Transactions"
-          value={stats.totalTransactions.toString()}
-          description="All payment attempts"
-          icon={Activity}
-          trend={{ value: 8.2, isPositive: true }}
-          gradient="linear-gradient(135deg, #2E7D32 0%, #388E3C 100%)"
+          title="Avg transaction"
+          value={formatRand(c.avgBasket)}
+          icon={Receipt}
+          trend={trend(c.avgBasket, p?.avgBasket)}
+          description="Per successful payment"
         />
         <StatsCard
           title="Successful"
-          value={mockTransactions.filter(t => t.paymentStatus === "approved").length.toString()}
-          description={`Success Rate: ${stats.approvalRate.toFixed(1)}%`}
-          icon={CreditCard}
-          trend={{ value: 3.1, isPositive: true }}
-          gradient="linear-gradient(135deg, #10B981 0%, #059669 100%)"
+          value={c.approved.toLocaleString("en-US")}
+          icon={CheckCircle2}
+          trend={trend(c.approved, p?.approved)}
+          description={`${successRate.toFixed(1)}% success rate${c.pending ? ` · ${c.pending} pending` : ""}`}
         />
         <StatsCard
           title="Declined"
-          value={mockTransactions.filter(t => t.paymentStatus === "declined").length.toString()}
-          description={`Decline Rate: ${((mockTransactions.filter(t => t.paymentStatus === "declined").length / stats.totalTransactions) * 100).toFixed(1)}%`}
-          icon={DollarSign}
-          trend={{ value: 2.3, isPositive: false }}
-          gradient="linear-gradient(135deg, #EF4444 0%, #DC2626 100%)"
+          value={c.declined.toLocaleString("en-US")}
+          icon={XCircle}
+          trend={trend(c.declined, p?.declined)}
+          invertTrend
+          description={`${declineRate.toFixed(1)}% of attempts · ${formatRand(c.declinedValue, 0)}`}
+        />
+        <StatsCard
+          title="Cancelled"
+          value={c.cancelled.toLocaleString("en-US")}
+          icon={Ban}
+          trend={trend(c.cancelled, p?.cancelled)}
+          invertTrend
+          description={`${cancelRate.toFixed(1)}% of attempts · ${formatRand(c.cancelledValue, 0)}`}
         />
       </div>
 
-      <TransactionFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        paymentMethodFilter={paymentMethodFilter}
-        onPaymentMethodChange={setPaymentMethodFilter}
-        statusFilter={statusFilter}
-        onStatusChange={setStatusFilter}
-        campusFilter={campusFilter}
-        onCampusChange={setCampusFilter}
-        dateFilter={dateFilter}
-        onDateChange={setDateFilter}
-        onExport={handleExport}
-        totalRecords={mockTransactions.length}
-        filteredRecords={filteredTransactions.length}
-      />
-
-      <Card className="shadow-sm">
-        <div className="p-6 border-b border-border">
-          <h2 className="text-xl font-semibold text-foreground">Transaction History</h2>
-          <p className="text-sm text-muted-foreground mt-1">Detailed view of all transactions</p>
+      <section className="surface overflow-hidden">
+        <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-[15px] font-semibold">Transactions</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">Every card payment attempt from the campus terminals</p>
+          </div>
+          <p className="tabular text-xs text-muted-foreground">
+            {filtered.length.toLocaleString("en-US")} of {c.count.toLocaleString("en-US")} transactions in this period
+          </p>
         </div>
-        <TransactionTable transactions={filteredTransactions} />
-      </Card>
+        <TransactionFilters
+          value={filters}
+          onChange={setFilters}
+          onExport={() => exportToCSV(filtered)}
+          minDate={minDate}
+          maxDate={maxDate}
+          filteredRecords={filtered.length}
+        />
+        <TransactionTable transactions={filtered} />
+      </section>
     </div>
   );
 };

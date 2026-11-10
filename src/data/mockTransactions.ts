@@ -1,297 +1,228 @@
-import { Transaction } from "@/types/transaction";
+import { addDays, format, startOfDay } from "date-fns";
+import { CartItem, MenuItem, PaymentMethod, PaymentStatus, Transaction } from "@/types/transaction";
+import { CAMPUSES, MENU } from "@/data/menu";
+import { DEMO_NOW } from "@/lib/demoClock";
 
-export const mockTransactions: Transaction[] = [
-  {
-    id: "1",
-    transactionNumber: "TXN-2025-001",
-    timestamp: new Date("2025-09-29T08:23:45"),
-    terminalId: "TERM-001",
-    campus: "Intellergy Cafe Cape Town",
-    cartItems: [
-      { id: "item-1-1", name: "Avo and Egg Toast", quantity: 1, price: 60, category: "All Day Menu" },
-      { id: "item-1-2", name: "Cappuccino", quantity: 1, price: 35, category: "Beverages" },
-      { id: "item-1-3", name: "Bacon", quantity: 1, price: 25, category: "Add-ons" }
-    ],
-    subtotal: 120, tax: 18, total: 138,
-    paymentMethod: "debit", paymentStatus: "approved", cardLastFour: "4532"
-  },
-  {
-    id: "2",
-    transactionNumber: "TXN-2025-002",
-    timestamp: new Date("2025-09-29T09:45:12"),
-    terminalId: "TERM-002",
-    campus: "Intellergy Cafe Durban",
-    cartItems: [
-      { id: "item-2-1", name: "Cajun Chicken Wrap with Fries", quantity: 1, price: 60, category: "All Day Menu" },
-      { id: "item-2-2", name: "Soft Drinks", quantity: 1, price: 25, category: "Beverages" }
-    ],
-    subtotal: 85, tax: 12.75, total: 97.75,
-    paymentMethod: "credit", paymentStatus: "approved", cardLastFour: "8821"
-  },
-  {
-    id: "3",
-    transactionNumber: "TXN-2025-003",
-    timestamp: new Date("2025-09-29T10:15:33"),
-    terminalId: "TERM-001",
-    campus: "Intellergy Cafe Cape Town",
-    cartItems: [
-      { id: "item-3-1", name: "Grilled Chicken Salad", quantity: 1, price: 60, category: "All Day Menu" },
-      { id: "item-3-2", name: "Five Roses Tea", quantity: 1, price: 20, category: "Beverages" }
-    ],
-    subtotal: 80, tax: 12, total: 92,
-    paymentMethod: "debit", paymentStatus: "declined", cardLastFour: "8821", declineReason: "Insufficient funds"
-  },
-  {
-    id: "4",
-    transactionNumber: "TXN-2025-004",
-    timestamp: new Date("2025-09-29T11:42:18"),
-    terminalId: "TERM-003",
-    campus: "Intellergy Cafe Nelson Mandela Bay",
-    cartItems: [
-      { id: "item-4-1", name: "Breakfast Croissant", quantity: 2, price: 70, category: "All Day Menu" },
-      { id: "item-4-2", name: "Mocha", quantity: 2, price: 45, category: "Beverages" }
-    ],
-    subtotal: 230, tax: 34.5, total: 264.50,
-    paymentMethod: "credit", paymentStatus: "approved", cardLastFour: "5512"
-  },
-  {
-    id: "5",
-    transactionNumber: "TXN-2025-005",
-    timestamp: new Date("2025-09-29T12:08:55"),
-    terminalId: "TERM-001",
-    campus: "Intellergy Cafe Cape Town",
-    cartItems: [
-      { id: "item-5-1", name: "Cajun Beef Wrap with Fries", quantity: 1, price: 75, category: "All Day Menu" },
-      { id: "item-5-2", name: "Glow-Up Smoothie", quantity: 1, price: 60, category: "Beverages" },
-      { id: "item-5-3", name: "Avocado", quantity: 1, price: 20, category: "Add-ons" }
-    ],
-    subtotal: 155, tax: 23.25, total: 178.25,
-    paymentMethod: "debit", paymentStatus: "approved", cardLastFour: "2147"
-  },
-  {
-    id: "14",
-    transactionNumber: "TXN-2025-014",
-    timestamp: new Date("2025-10-01T07:30:22"),
-    terminalId: "TERM-002",
-    campus: "Intellergy Cafe Durban",
-    cartItems: [
-      { id: "item-14-1", name: "Breakfast Croissant", quantity: 1, price: 70, category: "All Day Menu" },
-      { id: "item-14-2", name: "Cappuccino", quantity: 1, price: 35, category: "Beverages" }
-    ],
-    subtotal: 105, tax: 15.75, total: 120.75,
-    paymentMethod: "debit", paymentStatus: "approved", cardLastFour: "3421"
-  },
-  {
-    id: "15",
-    transactionNumber: "TXN-2025-015",
-    timestamp: new Date("2025-10-01T08:15:44"),
-    terminalId: "TERM-004",
-    campus: "Intellergy Cafe Pretoria",
-    cartItems: [
-      { id: "item-15-1", name: "Avo and Egg Toast", quantity: 1, price: 60, category: "All Day Menu" },
-      { id: "item-15-2", name: "Latte", quantity: 1, price: 40, category: "Beverages" },
-      { id: "item-15-3", name: "Bacon", quantity: 1, price: 25, category: "Add-ons" }
-    ],
-    subtotal: 125, tax: 18.75, total: 143.75,
-    paymentMethod: "credit", paymentStatus: "approved", cardLastFour: "7654"
-  },
-  {
-    id: "16",
-    transactionNumber: "TXN-2025-016",
-    timestamp: new Date("2025-10-01T09:02:11"),
-    terminalId: "TERM-002",
-    campus: "Intellergy Cafe Durban",
-    cartItems: [
-      { id: "item-16-1", name: "Triple Cheese with Fries", quantity: 1, price: 40, category: "All Day Menu" },
-      { id: "item-16-2", name: "Strawnana Smoothie", quantity: 1, price: 65, category: "Beverages" }
-    ],
-    subtotal: 105, tax: 15.75, total: 120.75,
-    paymentMethod: "debit", paymentStatus: "approved", cardLastFour: "9988"
-  },
-  {
-    id: "17",
-    transactionNumber: "TXN-2025-017",
-    timestamp: new Date("2025-10-01T09:45:33"),
-    terminalId: "TERM-004",
-    campus: "Intellergy Cafe Pretoria",
-    cartItems: [
-      { id: "item-17-1", name: "Grilled Chicken Salad", quantity: 1, price: 60, category: "All Day Menu" },
-      { id: "item-17-2", name: "Rooibos", quantity: 1, price: 25, category: "Beverages" }
-    ],
-    subtotal: 85, tax: 12.75, total: 97.75,
-    paymentMethod: "credit", paymentStatus: "approved", cardLastFour: "2233"
-  },
-  {
-    id: "18",
-    transactionNumber: "TXN-2025-018",
-    timestamp: new Date("2025-10-01T10:20:55"),
-    terminalId: "TERM-002",
-    campus: "Intellergy Cafe Durban",
-    cartItems: [
-      { id: "item-18-1", name: "Cajun Chicken Wrap with Fries", quantity: 2, price: 60, category: "All Day Menu" },
-      { id: "item-18-2", name: "Soft Drinks", quantity: 2, price: 25, category: "Beverages" }
-    ],
-    subtotal: 170, tax: 25.5, total: 195.5,
-    paymentMethod: "debit", paymentStatus: "approved", cardLastFour: "5566"
-  },
-  {
-    id: "19",
-    transactionNumber: "TXN-2025-019",
-    timestamp: new Date("2025-10-01T11:05:21"),
-    terminalId: "TERM-004",
-    campus: "Intellergy Cafe Pretoria",
-    cartItems: [
-      { id: "item-19-1", name: "Cajun Beef Wrap with Fries", quantity: 1, price: 75, category: "All Day Menu" },
-      { id: "item-19-2", name: "Mocha", quantity: 1, price: 45, category: "Beverages" },
-      { id: "item-19-3", name: "Fries", quantity: 1, price: 20, category: "Add-ons" }
-    ],
-    subtotal: 140, tax: 21, total: 161,
-    paymentMethod: "credit", paymentStatus: "approved", cardLastFour: "8899"
-  },
-  {
-    id: "20",
-    transactionNumber: "TXN-2025-020",
-    timestamp: new Date("2025-10-01T11:50:44"),
-    terminalId: "TERM-002",
-    campus: "Intellergy Cafe Durban",
-    cartItems: [
-      { id: "item-20-1", name: "Grilled Chicken Salad", quantity: 1, price: 60, category: "All Day Menu" },
-      { id: "item-20-2", name: "Glow-Up Smoothie", quantity: 1, price: 60, category: "Beverages" }
-    ],
-    subtotal: 120, tax: 18, total: 138,
-    paymentMethod: "debit", paymentStatus: "declined", cardLastFour: "4455", declineReason: "Card expired"
-  },
-  {
-    id: "21",
-    transactionNumber: "TXN-2025-021",
-    timestamp: new Date("2025-10-01T12:30:17"),
-    terminalId: "TERM-004",
-    campus: "Intellergy Cafe Pretoria",
-    cartItems: [
-      { id: "item-21-1", name: "Triple Cheese with Fries", quantity: 2, price: 40, category: "All Day Menu" },
-      { id: "item-21-2", name: "Cappuccino", quantity: 2, price: 35, category: "Beverages" }
-    ],
-    subtotal: 150, tax: 22.5, total: 172.5,
-    paymentMethod: "credit", paymentStatus: "approved", cardLastFour: "1122"
-  },
-  {
-    id: "22",
-    transactionNumber: "TXN-2025-022",
-    timestamp: new Date("2025-10-01T13:15:39"),
-    terminalId: "TERM-002",
-    campus: "Intellergy Cafe Durban",
-    cartItems: [
-      { id: "item-22-1", name: "Breakfast Croissant", quantity: 1, price: 70, category: "All Day Menu" },
-      { id: "item-22-2", name: "Latte", quantity: 1, price: 40, category: "Beverages" },
-      { id: "item-22-3", name: "Avocado", quantity: 1, price: 20, category: "Add-ons" }
-    ],
-    subtotal: 130, tax: 19.5, total: 149.5,
-    paymentMethod: "debit", paymentStatus: "approved", cardLastFour: "6677"
-  },
-  {
-    id: "23",
-    transactionNumber: "TXN-2025-023",
-    timestamp: new Date("2025-10-01T14:02:55"),
-    terminalId: "TERM-004",
-    campus: "Intellergy Cafe Pretoria",
-    cartItems: [
-      { id: "item-23-1", name: "Cajun Chicken Wrap with Fries", quantity: 1, price: 60, category: "All Day Menu" },
-      { id: "item-23-2", name: "Five Roses Tea", quantity: 1, price: 20, category: "Beverages" }
-    ],
-    subtotal: 80, tax: 12, total: 92,
-    paymentMethod: "credit", paymentStatus: "approved", cardLastFour: "3344"
-  },
-  {
-    id: "24",
-    transactionNumber: "TXN-2025-024",
-    timestamp: new Date("2025-10-01T14:45:12"),
-    terminalId: "TERM-002",
-    campus: "Intellergy Cafe Durban",
-    cartItems: [
-      { id: "item-24-1", name: "Avo and Egg Toast", quantity: 2, price: 60, category: "All Day Menu" },
-      { id: "item-24-2", name: "Strawnana Smoothie", quantity: 2, price: 65, category: "Beverages" }
-    ],
-    subtotal: 250, tax: 37.5, total: 287.5,
-    paymentMethod: "debit", paymentStatus: "approved", cardLastFour: "7788"
-  },
-  {
-    id: "25",
-    transactionNumber: "TXN-2025-025",
-    timestamp: new Date("2025-10-01T15:20:33"),
-    terminalId: "TERM-004",
-    campus: "Intellergy Cafe Pretoria",
-    cartItems: [
-      { id: "item-25-1", name: "Grilled Chicken Salad", quantity: 1, price: 60, category: "All Day Menu" },
-      { id: "item-25-2", name: "Mocha", quantity: 1, price: 45, category: "Beverages" },
-      { id: "item-25-3", name: "Bacon", quantity: 1, price: 25, category: "Add-ons" }
-    ],
-    subtotal: 130, tax: 19.5, total: 149.5,
-    paymentMethod: "credit", paymentStatus: "approved", cardLastFour: "9900"
-  },
-  {
-    id: "26",
-    transactionNumber: "TXN-2025-026",
-    timestamp: new Date("2025-10-01T08:45:22"),
-    terminalId: "TERM-001",
-    campus: "Intellergy Cafe Cape Town",
-    cartItems: [
-      { id: "item-26-1", name: "Breakfast Croissant", quantity: 1, price: 70, category: "All Day Menu" },
-      { id: "item-26-2", name: "Espresso", quantity: 1, price: 25, category: "Beverages" }
-    ],
-    subtotal: 95, tax: 14.25, total: 109.25,
-    paymentMethod: "debit", paymentStatus: "approved", cardLastFour: "4321"
-  },
-  {
-    id: "27",
-    transactionNumber: "TXN-2025-027",
-    timestamp: new Date("2025-10-01T10:30:44"),
-    terminalId: "TERM-003",
-    campus: "Intellergy Cafe Nelson Mandela Bay",
-    cartItems: [
-      { id: "item-27-1", name: "Triple Cheese with Fries", quantity: 1, price: 40, category: "All Day Menu" },
-      { id: "item-27-2", name: "Soft Drinks", quantity: 1, price: 25, category: "Beverages" }
-    ],
-    subtotal: 65, tax: 9.75, total: 74.75,
-    paymentMethod: "credit", paymentStatus: "approved", cardLastFour: "6543"
-  },
-  {
-    id: "28",
-    transactionNumber: "TXN-2025-028",
-    timestamp: new Date("2025-10-01T12:15:11"),
-    terminalId: "TERM-001",
-    campus: "Intellergy Cafe Cape Town",
-    cartItems: [
-      { id: "item-28-1", name: "Cajun Beef Wrap with Fries", quantity: 1, price: 75, category: "All Day Menu" },
-      { id: "item-28-2", name: "Cappuccino", quantity: 1, price: 35, category: "Beverages" }
-    ],
-    subtotal: 110, tax: 16.5, total: 126.5,
-    paymentMethod: "debit", paymentStatus: "approved", cardLastFour: "8765"
-  },
-  {
-    id: "29",
-    transactionNumber: "TXN-2025-029",
-    timestamp: new Date("2025-10-01T13:45:33"),
-    terminalId: "TERM-003",
-    campus: "Intellergy Cafe Nelson Mandela Bay",
-    cartItems: [
-      { id: "item-29-1", name: "Grilled Chicken Salad", quantity: 1, price: 60, category: "All Day Menu" },
-      { id: "item-29-2", name: "Glow-Up Smoothie", quantity: 1, price: 60, category: "Beverages" },
-      { id: "item-29-3", name: "Avocado", quantity: 1, price: 20, category: "Add-ons" }
-    ],
-    subtotal: 140, tax: 21, total: 161,
-    paymentMethod: "credit", paymentStatus: "approved", cardLastFour: "2109"
-  },
-  {
-    id: "30",
-    transactionNumber: "TXN-2025-030",
-    timestamp: new Date("2025-10-01T15:10:55"),
-    terminalId: "TERM-001",
-    campus: "Intellergy Cafe Cape Town",
-    cartItems: [
-      { id: "item-30-1", name: "Avo and Egg Toast", quantity: 1, price: 60, category: "All Day Menu" },
-      { id: "item-30-2", name: "Latte", quantity: 1, price: 40, category: "Beverages" }
-    ],
-    subtotal: 100, tax: 15, total: 115,
-    paymentMethod: "debit", paymentStatus: "approved", cardLastFour: "5432"
+/**
+ * Demo transactions for the 70 days leading up to DEMO_NOW
+ * (Tue 10 Nov 2026, 10:00). Generated with a seeded PRNG so every reload
+ * shows exactly the same data.
+ *
+ * Trading pattern:
+ *  - Mon–Fri 07:00–16:00, Sat 08:00–13:00 (lighter), closed Sundays
+ *  - Breakfast rush 07:30–09:00, mid-morning class break ~10:00, lunch peak 12:00–13:30
+ *  - Today only contains sales up to 10:00, with the last few still pending
+ */
+
+const DAYS_BACK = 70;
+const VAT_RATE = 0.15;
+
+// ---------- seeded random ----------
+function mulberry32(seed: number) {
+  let a = seed;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rand = mulberry32(20261110);
+const chance = (p: number) => rand() < p;
+const pick = <T,>(arr: T[]) => arr[Math.floor(rand() * arr.length)];
+function weightedPick<T>(items: { value: T; weight: number }[]): T {
+  const total = items.reduce((s, i) => s + i.weight, 0);
+  let r = rand() * total;
+  for (const i of items) {
+    r -= i.weight;
+    if (r <= 0) return i.value;
   }
+  return items[items.length - 1].value;
+}
+
+// ---------- menu helpers ----------
+const byId = (id: string) => MENU.find((m) => m.id === id)!;
+const BREAKFAST = ["avo-egg-toast", "breakfast-croissant", "granola-cups"];
+const LUNCH = ["cajun-chicken-wrap", "cajun-beef-wrap", "grilled-chicken-salad", "triple-cheese"];
+const HOT_DRINKS = ["cappuccino", "latte", "americano", "espresso", "mocha", "five-roses", "rooibos"];
+const COLD_DRINKS = ["soft-drinks", "glow-up", "strawnana"];
+
+const mainFor = (hour: number): MenuItem => {
+  const morning = hour < 11;
+  return byId(
+    weightedPick([
+      ...BREAKFAST.map((id) => ({ value: id, weight: morning ? 3 : 0.6 })),
+      ...LUNCH.map((id) => ({ value: id, weight: morning ? 0.5 : 2.4 })),
+    ]),
+  );
+};
+
+const drinkFor = (hour: number): MenuItem => {
+  const morning = hour < 11;
+  return byId(
+    weightedPick([
+      { value: "cappuccino", weight: morning ? 4 : 1.6 },
+      { value: "latte", weight: morning ? 3.2 : 1.4 },
+      { value: "americano", weight: morning ? 2 : 0.8 },
+      { value: "espresso", weight: morning ? 1.4 : 0.6 },
+      { value: "mocha", weight: 1 },
+      { value: "five-roses", weight: 0.8 },
+      { value: "rooibos", weight: 1 },
+      ...COLD_DRINKS.map((id) => ({ value: id, weight: morning ? 0.6 : 1.8 })),
+    ]),
+  );
+};
+
+const addOnFor = (main: MenuItem | null, drink: MenuItem | null): MenuItem | null => {
+  if (drink && HOT_DRINKS.includes(drink.id) && chance(0.08)) return byId("oat-milk");
+  if (!main) return null;
+  if (!chance(0.28)) return null;
+  if (main.id === "avo-egg-toast") return byId(pick(["bacon", "extra-egg"]));
+  if (main.id === "breakfast-croissant") return byId(pick(["avocado", "extra-egg"]));
+  if (main.id === "grilled-chicken-salad") return byId("avocado");
+  if (main.id === "triple-cheese") return byId(pick(["bacon", "fries"]));
+  if (main.id.startsWith("cajun")) return byId(pick(["fries", "avocado"]));
+  return null;
+};
+
+// ---------- trading pattern ----------
+// Relative demand per 15-minute slot, by hour
+const HOUR_WEIGHT: Record<number, number> = {
+  7: 0.7, 8: 1.35, 9: 0.9, 10: 1.25, 11: 0.75, 12: 1.6, 13: 1.3, 14: 0.65, 15: 0.45,
+};
+const SATURDAY_HOURS = [8, 9, 10, 11, 12];
+
+const DECLINE_REASONS = [
+  { value: "Insufficient funds", weight: 5 },
+  { value: "Do not honour", weight: 2 },
+  { value: "Card expired", weight: 1 },
+  { value: "Incorrect PIN", weight: 2 },
+  { value: "Contactless limit exceeded", weight: 1 },
 ];
+
+const CANCEL_REASONS = [
+  { value: "Customer cancelled at terminal", weight: 4 },
+  { value: "Cashier voided order", weight: 3 },
+  { value: "Card tap timed out", weight: 2 },
+];
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+function buildBasket(hour: number): CartItem[] {
+  const main = chance(hour < 11 ? 0.62 : 0.8) ? mainFor(hour) : null;
+  let drink = chance(main ? 0.7 : 1) ? drinkFor(hour) : null;
+  if (!main && !drink) drink = drinkFor(hour);
+  const addOn = addOnFor(main, drink);
+
+  const lines: CartItem[] = [];
+  const groupOrder = chance(0.1); // someone buying for a friend
+  const push = (m: MenuItem | null) => {
+    if (!m) return;
+    lines.push({
+      id: m.id,
+      name: m.name,
+      price: m.price,
+      category: m.category,
+      quantity: groupOrder && m.category !== "Add-ons" ? 2 : 1,
+    });
+  };
+  push(main);
+  push(drink);
+  push(addOn);
+  return lines;
+}
+
+function generate(): Transaction[] {
+  const out: Transaction[] = [];
+  const today = startOfDay(DEMO_NOW);
+  let id = 1;
+
+  for (let d = DAYS_BACK; d >= 0; d--) {
+    const day = addDays(today, -d);
+    const dow = day.getDay(); // 0 Sun … 6 Sat
+    if (dow === 0) continue;
+
+    const isSaturday = dow === 6;
+    const hours = isSaturday ? SATURDAY_HOURS : Object.keys(HOUR_WEIGHT).map(Number);
+    // Gentle upward trend as the term progresses, quieter on Mondays and Fridays
+    const trend = 0.88 + ((DAYS_BACK - d) / DAYS_BACK) * 0.18;
+    const dayFactor = (isSaturday ? 0.3 : dow === 1 ? 0.92 : dow === 5 ? 0.9 : 1) * (d === 0 ? 1.12 : 1); // busy morning today
+    let seq = 1;
+
+    const dayTx: Transaction[] = [];
+    for (const campus of CAMPUSES) {
+      for (const hour of hours) {
+        for (let slot = 0; slot < 4; slot++) {
+          const expected = 1.15 * campus.weight * HOUR_WEIGHT[hour] * trend * dayFactor;
+          // up to 2 sales per 15-minute slot
+          let n = Math.floor(expected) + (chance(expected - Math.floor(expected)) ? 1 : 0);
+          if (chance(0.15)) n = Math.max(0, n - 1);
+          for (let k = 0; k < n; k++) {
+            const minute = slot * 15 + Math.floor(rand() * 15);
+            const second = Math.floor(rand() * 60);
+            const ts = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour, minute, second);
+            if (ts >= DEMO_NOW) continue;
+
+            const cartItems = buildBasket(hour);
+            const total = round2(cartItems.reduce((s, i) => s + i.price * i.quantity, 0));
+            const tax = round2((total * VAT_RATE) / (1 + VAT_RATE));
+            const minutesAgo = (DEMO_NOW.getTime() - ts.getTime()) / 60000;
+
+            let paymentStatus: PaymentStatus = "approved";
+            if (minutesAgo < 6 && chance(0.6)) paymentStatus = "pending";
+            else if (chance(0.055)) paymentStatus = "declined";
+            else if (chance(0.025)) paymentStatus = "cancelled";
+
+            const paymentMethod: PaymentMethod = chance(0.64) ? "debit" : "credit";
+
+            dayTx.push({
+              id: "",
+              transactionNumber: "",
+              timestamp: ts,
+              terminalId: campus.terminal,
+              campus: campus.name,
+              cashier: pick(campus.cashiers),
+              cartItems,
+              subtotal: round2(total - tax),
+              tax,
+              total,
+              paymentMethod,
+              paymentStatus,
+              cardLastFour: String(1000 + Math.floor(rand() * 9000)),
+              declineReason: paymentStatus === "declined" ? weightedPick(DECLINE_REASONS) : undefined,
+              cancelReason: paymentStatus === "cancelled" ? weightedPick(CANCEL_REASONS) : undefined,
+            });
+          }
+        }
+      }
+    }
+
+    dayTx
+      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+      .forEach((t) => {
+        t.id = String(id++);
+        t.transactionNumber = `TXN-${format(day, "yyMMdd")}-${String(seq++).padStart(4, "0")}`;
+        out.push(t);
+      });
+  }
+
+  // Newest first
+  out.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  // The very latest sales are still being authorised
+  out.slice(0, 2).forEach((t) => {
+    t.paymentStatus = "pending";
+    t.declineReason = undefined;
+    t.cancelReason = undefined;
+  });
+  // Make sure today shows a cancelled sale for the demo
+  const todayKey = format(DEMO_NOW, "yyyy-MM-dd");
+  const cancelToday = out.find((t, i) => i > 6 && format(t.timestamp, "yyyy-MM-dd") === todayKey && t.paymentStatus === "approved");
+  if (cancelToday) {
+    cancelToday.paymentStatus = "cancelled";
+    cancelToday.cancelReason = "Customer cancelled at terminal";
+  }
+  return out;
+}
+
+export const mockTransactions: Transaction[] = generate();
