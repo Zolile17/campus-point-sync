@@ -85,7 +85,7 @@ const BrandManagement = () => {
       <PageHeader
         eyebrow="Locations"
         title="Brand Management"
-        description="Capsicum Culinary Studio campuses and their café terminals"
+        description="Capsicum Culinary Studio campuses and their deli terminals"
         actions={
           <Dialog open={isAddCampusOpen} onOpenChange={setIsAddCampusOpen}>
             <DialogTrigger asChild>
@@ -128,9 +128,9 @@ const BrandManagement = () => {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatsCard title="Campuses" value={String(campuses.length)} icon={Building2} description={`${campuses.filter((c) => c.status === "active").length} trading today`} />
-        <StatsCard title="Active staff" value={String(campuses.reduce((s, c) => s + c.activeUsers, 0))} icon={Users} description="Cashiers and supervisors" />
-        <StatsCard accent title="Revenue · last 30 days" value={formatRand(totalRevenue, 0)} icon={Banknote} description="All campuses, approved" />
+        <StatsCard tone="info" title="Campuses" value={String(campuses.length)} icon={Building2} description={`${campuses.filter((c) => c.status === "active").length} trading today`} />
+        <StatsCard tone="teal" title="Active staff" value={String(campuses.reduce((s, c) => s + c.activeUsers, 0))} icon={Users} description="Cashiers and supervisors" />
+        <StatsCard hero title="Payments · last 30 days" value={formatRand(totalRevenue, 0)} icon={Banknote} description="All campuses, approved" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

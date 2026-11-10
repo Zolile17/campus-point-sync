@@ -1,6 +1,6 @@
 import { Campus, ItemCategory, MenuItem } from "@/types/transaction";
 
-/** Café menu — matches the campus POS. Prices are VAT-inclusive (ZAR). */
+/** Deli menu — matches the campus POS. Prices are VAT-inclusive (ZAR). */
 export const MENU: MenuItem[] = [
   // All Day Menu
   { id: "avo-egg-toast", name: "Avo and Egg Toast", description: "Avo, Egg, Pickled Onions, Chilli Oil, Ciabatta/Rye Bread/Wholewheat Bread", price: 60, category: "All Day Menu" },

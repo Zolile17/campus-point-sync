@@ -190,10 +190,10 @@ const UserManagement = () => {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatsCard title="Total users" value={String(users.length)} icon={Users} description={`${users.filter((u) => u.role === "Cashier").length} cashiers`} />
-        <StatsCard title="Active" value={String(users.filter((u) => u.status === "active").length)} icon={CheckCircle2} description={`${signedInToday} signed in today`} />
-        <StatsCard accent={pending > 0} title="Pending approval" value={String(pending)} icon={Clock} description={pending ? "Needs your review" : "All caught up"} />
-        <StatsCard title="Inactive" value={String(users.filter((u) => u.status === "inactive").length)} icon={UserX} description="Access disabled" />
+        <StatsCard tone="info" title="Total users" value={String(users.length)} icon={Users} description={`${users.filter((u) => u.role === "Cashier").length} cashiers`} />
+        <StatsCard tone="success" title="Active" value={String(users.filter((u) => u.status === "active").length)} icon={CheckCircle2} description={`${signedInToday} signed in today`} />
+        <StatsCard tone="warning" title="Pending approval" value={String(pending)} icon={Clock} description={pending ? "Needs your review" : "All caught up"} />
+        <StatsCard tone="neutral" title="Inactive" value={String(users.filter((u) => u.status === "inactive").length)} icon={UserX} description="Access disabled" />
       </div>
 
       <section className="surface overflow-hidden">
