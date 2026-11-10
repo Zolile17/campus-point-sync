@@ -6,6 +6,7 @@ import { format, isSameDay } from "date-fns";
 import { ChevronLeft, ChevronRight, CreditCard, Receipt } from "lucide-react";
 import { StatusPill } from "@/components/shared/StatusPill";
 import { DEMO_NOW, formatRand } from "@/lib/demoClock";
+import { CAMPUS_COLOR } from "@/components/shared/chart";
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -65,7 +66,12 @@ export const TransactionTable = ({ transactions, pageSize = 15 }: TransactionTab
                       {isSameDay(t.timestamp, DEMO_NOW) ? "Today" : format(t.timestamp, "EEE d MMM")}
                     </p>
                   </TableCell>
-                  <TableCell className="whitespace-nowrap align-top text-sm">{t.campus}</TableCell>
+                  <TableCell className="whitespace-nowrap align-top text-sm">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full" style={{ background: CAMPUS_COLOR[t.campus] }} />
+                      {t.campus}
+                    </span>
+                  </TableCell>
                   <TableCell className="min-w-[220px] align-top">
                     <ul className="space-y-0.5">
                       {t.cartItems.map((item) => (

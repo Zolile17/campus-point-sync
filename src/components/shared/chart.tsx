@@ -3,10 +3,10 @@ import type { NameType, ValueType } from "recharts/types/component/DefaultToolti
 
 /** Categorical order — fixed, never cycled. Validated for CVD separation in light & dark. */
 export const SERIES = [
-  "hsl(var(--chart-1))", // slate blue
-  "hsl(var(--chart-2))", // teal
+  "hsl(var(--chart-1))", // Capsicum red
+  "hsl(var(--chart-2))", // slate blue
   "hsl(var(--chart-3))", // amber
-  "hsl(var(--chart-4))", // violet
+  "hsl(var(--chart-4))", // teal
 ];
 
 /** Fixed colour per entity so filters never repaint survivors */

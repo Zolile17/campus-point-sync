@@ -1,12 +1,12 @@
 # Capsicum · Campus POS Dashboard
 
-Admin dashboard for the Capsicum Culinary Studio campus café POS. Tracks card
-transactions from each campus terminal, with revenue, volume and menu analytics.
+Admin dashboard for the Capsicum Culinary Studio campus deli POS. Tracks card
+transactions from each campus terminal, with payments, volume and menu analytics.
 
 ## Pages
 
 - **Dashboard** — today's KPIs vs. the same time last week, hourly sales, campus breakdown, and a filterable, paginated transaction history with CSV export
-- **Metrics** — revenue, volume and product analytics for the last 7 days, 30 days or all time
+- **Metrics** — payments, volume and product analytics for the last 7 days, 30 days or all time
 - **User Management** — cashiers and supervisors, with approval flow for new accounts
 - **Brand Management** — campuses, terminals and per-campus trading
 
@@ -25,7 +25,7 @@ export const DEMO_NOW = new Date(2026, 10, 10, 10, 0, 0);
 
 Change it to `new Date()` to have the data always end at the real current time.
 
-The café menu and campuses are in `src/data/menu.ts` (shared with the POS).
+The deli menu and campuses are in `src/data/menu.ts` (shared with the POS).
 
 ## Branding
 

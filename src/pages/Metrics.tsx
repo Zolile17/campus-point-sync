@@ -178,7 +178,6 @@ const Metrics = () => {
   const SortIcon = ({ f }: { f: SortField }) =>
     sortField !== f ? <ArrowUpDown className="h-3.5 w-3.5 opacity-40" /> : sortAsc ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowDown className="h-3.5 w-3.5" />;
 
-  const topCampus = [...a.campuses].sort((x, y) => y.revenue - x.revenue)[0];
   const bestSeller = [...a.itemList].sort((x, y) => y.quantity - x.quantity)[0];
   const maxCampusRevenue = Math.max(...a.campuses.map((c) => c.revenue));
   const maxCategoryRevenue = Math.max(...a.categories.map((c) => c.revenue));
@@ -210,7 +209,7 @@ const Metrics = () => {
             <TabsTrigger
               key={v}
               value={v}
-              className="relative h-10 gap-2 rounded-none border-b-2 border-transparent bg-transparent px-3 text-muted-foreground shadow-none data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
+              className="relative h-10 gap-2 rounded-none border-b-2 border-transparent bg-transparent px-3 text-muted-foreground shadow-none data-[state=active]:border-brand data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
             >
               <Icon className="h-4 w-4" />
               {label}
@@ -221,9 +220,9 @@ const Metrics = () => {
         {/* ---------------- Revenue ---------------- */}
         <TabsContent value="revenue" className="mt-0 space-y-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatsCard title="Approved revenue" value={formatRand(a.summary.revenue)} icon={Banknote} description={presetLabel[range]} />
+            <StatsCard accent title="Approved revenue" value={formatRand(a.summary.revenue)} icon={Banknote} description={presetLabel[range]} />
             <StatsCard title="Average per trading day" value={formatRand(a.avgDaily)} icon={CalendarDays} description="Excludes today" />
-            <StatsCard title="Top campus" value={topCampus?.name ?? "—"} icon={Trophy} description={topCampus ? `${formatRand(topCampus.revenue, 0)} · ${((topCampus.revenue / Math.max(a.summary.revenue, 1)) * 100).toFixed(0)}% of revenue` : ""} />
+            <StatsCard title="Average basket" value={formatRand(a.summary.avgBasket)} icon={ShoppingBasket} description={`${a.summary.approved.toLocaleString("en-US")} paid orders`} />
             <StatsCard title="VAT collected" value={formatRand(a.vat)} icon={Receipt} description="15% included in prices" />
           </div>
 
@@ -242,7 +241,7 @@ const Metrics = () => {
                   />
                   <Bar dataKey="revenue" name="Revenue" radius={[4, 4, 0, 0]} maxBarSize={28}>
                     {a.daily.map((d) => (
-                      <Cell key={d.key} fill={SERIES[0]} fillOpacity={d.key === dayKey(DEMO_NOW) ? 0.45 : 1} />
+                      <Cell key={d.key} fill="hsl(var(--brand))" fillOpacity={d.key === dayKey(DEMO_NOW) ? 0.45 : 1} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -283,14 +282,14 @@ const Metrics = () => {
         {/* ---------------- Volume ---------------- */}
         <TabsContent value="volume" className="mt-0 space-y-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatsCard title="Transactions" value={a.summary.count.toLocaleString("en-US")} icon={Receipt} description={`${a.summary.items.toLocaleString("en-US")} items sold`} />
-            <StatsCard title="Approval rate" value={`${a.summary.approvalRate.toFixed(1)}%`} icon={CreditCard} description={`${a.summary.declined} declined · ${a.summary.cancelled} cancelled`} />
+            <StatsCard accent title="Transactions" value={a.summary.count.toLocaleString("en-US")} icon={Receipt} description={`${a.summary.items.toLocaleString("en-US")} items sold`} />
+            <StatsCard title="Approval rate" value={`${a.summary.approvalRate.toFixed(1)}%`} icon={CreditCard} description={`${a.summary.declined} declined`} />
             <StatsCard title="Busiest hour" value={a.peak.hour} icon={CalendarDays} description={`${a.peak.avg} sales per day on average`} />
             <StatsCard title="Debit share" value={`${debitShare.toFixed(0)}%`} icon={CreditCard} description={`${a.debit.length.toLocaleString("en-US")} debit · ${a.credit.length.toLocaleString("en-US")} credit`} />
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <Panel title="Peak hours" description="Average approved sales per trading day, by hour · busiest hour in full colour">
+            <Panel title="Peak hours" description="Average approved sales per trading day, by hour">
               <div className="h-[260px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={a.hours} margin={{ top: 8, right: 8, left: -12, bottom: 0 }} barCategoryGap="24%">
@@ -300,7 +299,7 @@ const Metrics = () => {
                     <Tooltip cursor={{ fill: "hsl(var(--muted))", opacity: 0.6 }} content={<ChartTooltip formatter={(v) => `${v} / day`} />} />
                     <Bar dataKey="avg" name="Sales" radius={[4, 4, 0, 0]} maxBarSize={34}>
                       {a.hours.map((h) => (
-                        <Cell key={h.hour} fill={SERIES[0]} fillOpacity={h.hour === a.peak.hour ? 1 : 0.55} />
+                        <Cell key={h.hour} fill={h.hour === a.peak.hour ? "hsl(var(--brand))" : SERIES[1]} />
                       ))}
                     </Bar>
                   </BarChart>
@@ -315,7 +314,7 @@ const Metrics = () => {
                     <XAxis dataKey="day" {...axisProps} />
                     <YAxis {...axisProps} width={56} tickFormatter={formatRandCompact} />
                     <Tooltip cursor={{ fill: "hsl(var(--muted))", opacity: 0.6 }} content={<ChartTooltip formatter={(v) => formatRand(v, 0)} />} />
-                    <Bar dataKey="avg" name="Avg revenue" fill={SERIES[0]} radius={[4, 4, 0, 0]} maxBarSize={40} />
+                    <Bar dataKey="avg" name="Avg revenue" fill={SERIES[1]} radius={[4, 4, 0, 0]} maxBarSize={40} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -368,7 +367,7 @@ const Metrics = () => {
             <StatsCard title="Menu items sold" value={String(a.itemList.length)} icon={Package} description="distinct items" />
             <StatsCard title="Units sold" value={a.itemList.reduce((s, i) => s + i.quantity, 0).toLocaleString("en-US")} icon={ShoppingBasket} description={presetLabel[range]} />
             <StatsCard title="Item revenue" value={formatRand(a.itemRevenue)} icon={Banknote} description="approved orders" />
-            <StatsCard title="Best seller" value={bestSeller?.name.replace(" with Fries/Side Salad", "") ?? "—"} icon={Trophy} description={`${bestSeller?.quantity.toLocaleString("en-US") ?? 0} sold`} />
+            <StatsCard accent title="Best seller" value={bestSeller?.name.replace(" with Fries/Side Salad", "") ?? "—"} icon={Trophy} description={`${bestSeller?.quantity.toLocaleString("en-US") ?? 0} sold`} />
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
